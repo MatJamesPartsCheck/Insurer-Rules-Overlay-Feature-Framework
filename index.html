@@ -6,511 +6,643 @@
 <title>Prioritisation Workshop — Insurer Rules Overlay</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Fraunces:ital,wght@0,300;0,600;0,700;1,300&display=swap" rel="stylesheet">
 <style>
-/* ─── RESET & SHARED ──────────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
-  --bg: #f4f1eb;
-  --surface: #ffffff;
-  --ink: #18160f;
-  --muted: #6a6558;
-  --light: #b0ab9f;
-  --border: #dedad2;
-  --accent: #c84b2f;
-  --accent-bg: #f5ddd7;
-  --now: #1a6b3c;
-  --now-bg: #d4eddf;
-  --next: #9b5500;
-  --next-bg: #fde7c2;
-  --future: #2a4f8a;
-  --future-bg: #d3e4f8;
-  --unset: #6a6558;
-  --unset-bg: #ede9e2;
+  --bg: #f4f1eb; --surface: #ffffff; --ink: #18160f; --muted: #6a6558;
+  --light: #b0ab9f; --border: #dedad2; --accent: #c84b2f; --accent-bg: #f5ddd7;
+  --now: #1a6b3c; --now-bg: #d4eddf; --next: #9b5500; --next-bg: #fde7c2;
+  --future: #2a4f8a; --future-bg: #d3e4f8; --unset: #6a6558; --unset-bg: #ede9e2;
+  --new-badge: #7b2d8b; --new-badge-bg: #f0e0f5;
 }
 body { font-family: 'DM Mono', monospace; background: var(--bg); color: var(--ink); min-height: 100vh; font-size: 13px; }
- 
-/* ─── SHARED HEADER ───────────────────────────────────────────────────── */
-.header {
-  background: var(--ink); color: #f4f1eb;
-  padding: 2.5rem 4rem 2rem; position: relative; overflow: hidden;
-}
-.header::before {
-  content: ''; position: absolute; top: -60px; right: -60px;
-  width: 240px; height: 240px; border-radius: 50%;
-  border: 40px solid var(--accent); opacity: 0.12;
-}
+
+.header { background: var(--ink); color: #f4f1eb; padding: 2.5rem 4rem 2rem; position: relative; overflow: hidden; }
+.header::before { content: ''; position: absolute; top: -60px; right: -60px; width: 240px; height: 240px; border-radius: 50%; border: 40px solid var(--accent); opacity: 0.12; }
 .header-label { font-size: 0.58rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.5rem; }
 .header h1 { font-family: 'Fraunces', serif; font-size: 2rem; font-weight: 700; line-height: 1.2; }
 .header-sub { font-size: 0.68rem; color: #aaa8a0; margin-top: 0.4rem; }
-.header-stats { display: flex; gap: 2.5rem; margin-top: 1.5rem; }
+.header-new { display: inline-block; font-size: 0.58rem; letter-spacing: 0.12em; text-transform: uppercase; background: var(--new-badge); color: white; padding: 0.15rem 0.5rem; border-radius: 2px; margin-left: 0.6rem; vertical-align: middle; }
+.header-stats { display: flex; gap: 2.5rem; margin-top: 1.5rem; flex-wrap: wrap; }
 .stat { display: flex; flex-direction: column; gap: 0.15rem; }
 .stat-num { font-family: 'Fraunces', serif; font-size: 1.8rem; font-weight: 600; color: #f4f1eb; }
 .stat-label { font-size: 0.58rem; letter-spacing: 0.15em; text-transform: uppercase; color: #aaa8a0; }
- 
-/* ─── TAB BAR ─────────────────────────────────────────────────────────── */
-.tab-bar {
-  display: flex; background: #111009;
-  border-bottom: 2px solid var(--accent);
-  position: sticky; top: 0; z-index: 100;
-}
-.tab-btn {
-  font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.12em;
-  text-transform: uppercase; font-weight: 500;
-  padding: 0.85rem 2rem; border: none; background: transparent;
-  color: #888; cursor: pointer; transition: all 0.15s;
-  border-bottom: 3px solid transparent; margin-bottom: -2px;
-}
+
+.tab-bar { display: flex; background: #111009; border-bottom: 2px solid var(--accent); position: sticky; top: 0; z-index: 100; }
+.tab-btn { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 500; padding: 0.85rem 2rem; border: none; background: transparent; color: #888; cursor: pointer; transition: all 0.15s; border-bottom: 3px solid transparent; margin-bottom: -2px; }
 .tab-btn:hover { color: #f4f1eb; }
 .tab-btn.active { color: #f4f1eb; border-bottom-color: var(--accent); }
 .tab-label-sub { font-size: 0.52rem; display: block; color: #555; margin-top: 1px; letter-spacing: 0.06em; text-transform: none; }
 .tab-btn.active .tab-label-sub { color: #aaa; }
- 
-/* ─── TAB PANELS ──────────────────────────────────────────────────────── */
+
 .tab-panel { display: none; }
 .tab-panel.active { display: block; }
- 
-/* ══════════════════════════════════════════════════════════════════════
-   TAB 1: NOW / NEXT / FUTURE WORKSHOP
-══════════════════════════════════════════════════════════════════════ */
-.t1-controls {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 1.1rem 4rem; background: var(--surface);
-  border-bottom: 1px solid var(--border); flex-wrap: wrap; gap: 1rem;
-}
+
+/* NEW badge on rows */
+.new-badge { display: inline-block; font-size: 0.55rem; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 500; background: var(--new-badge-bg); color: var(--new-badge); padding: 0.1rem 0.4rem; border-radius: 2px; margin-left: 0.4rem; vertical-align: middle; border: 1px solid #d8b0e8; }
+.updated-badge { display: inline-block; font-size: 0.55rem; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 500; background: #e8f0fe; color: #1a3a8a; padding: 0.1rem 0.4rem; border-radius: 2px; margin-left: 0.4rem; vertical-align: middle; border: 1px solid #b8c8f0; }
+
+/* TAB 1 */
+.t1-controls { display: flex; align-items: center; justify-content: space-between; padding: 1.1rem 4rem; background: var(--surface); border-bottom: 1px solid var(--border); flex-wrap: wrap; gap: 1rem; }
 .t1-filter-group { display: flex; gap: 0.5rem; flex-wrap: wrap; }
-.t1-filter-btn {
-  font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.08em;
-  padding: 0.32rem 0.8rem; border: 1px solid var(--border); background: transparent;
-  border-radius: 2px; cursor: pointer; transition: all 0.15s; color: var(--muted);
-}
+.t1-filter-btn { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.08em; padding: 0.32rem 0.8rem; border: 1px solid var(--border); background: transparent; border-radius: 2px; cursor: pointer; transition: all 0.15s; color: var(--muted); }
 .t1-filter-btn:hover { border-color: var(--ink); color: var(--ink); }
 .t1-filter-btn.active { background: var(--ink); color: #f4f1eb; border-color: var(--ink); }
-.t1-legend { display: flex; gap: 1.25rem; align-items: center; }
+.t1-legend { display: flex; gap: 1.25rem; align-items: center; flex-wrap: wrap; }
 .t1-legend-item { display: flex; align-items: center; gap: 0.4rem; font-size: 0.65rem; color: var(--muted); }
 .t1-legend-dot { width: 8px; height: 8px; border-radius: 50%; }
- 
+
 .t1-main { padding: 2.5rem 4rem 6rem; }
 .category-section { margin-bottom: 3rem; }
-.category-header {
-  display: flex; align-items: baseline; gap: 1rem; margin-bottom: 1rem;
-  padding-bottom: 0.6rem; border-bottom: 2px solid var(--ink);
-}
+.category-header { display: flex; align-items: baseline; gap: 1rem; margin-bottom: 1rem; padding-bottom: 0.6rem; border-bottom: 2px solid var(--ink); }
 .category-name { font-family: 'Fraunces', serif; font-size: 1.15rem; font-weight: 600; }
 .category-count { font-size: 0.65rem; color: var(--muted); letter-spacing: 0.08em; }
- 
+
 .feature-table { width: 100%; border-collapse: collapse; }
-.feature-table thead th {
-  font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase;
-  color: var(--muted); text-align: left; padding: 0.5rem 0.75rem;
-  border-bottom: 1px solid var(--border); font-weight: 500;
-}
+.feature-table thead th { font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); text-align: left; padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--border); font-weight: 500; }
 .feature-table tbody tr { border-bottom: 1px solid var(--border); transition: background 0.1s; }
 .feature-table tbody tr:hover { background: rgba(0,0,0,0.02); }
+.feature-table tbody tr.row-new { background: #fdf8ff; }
+.feature-table tbody tr.row-new:hover { background: #f8f0fe; }
 .feature-table td { padding: 0.9rem 0.75rem; vertical-align: top; font-size: 0.73rem; }
 .col-feature { width: 28%; } .col-desc { width: 35%; } .col-mentions { width: 9%; } .col-suggested { width: 12%; } .col-final { width: 16%; }
- 
 .t1-feature-name { font-weight: 500; line-height: 1.4; color: var(--ink); }
 .t1-feature-desc { color: var(--muted); line-height: 1.5; font-size: 0.7rem; }
 .mention-badge { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.68rem; color: var(--muted); }
-.mention-dots { display: flex; gap: 2px; margin-top: 3px; }
+.mention-dots { display: flex; gap: 2px; margin-top: 3px; flex-wrap: wrap; max-width: 80px; }
 .mention-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); opacity: 0.22; }
 .mention-dot.filled { opacity: 1; }
- 
+
 .tag { display: inline-block; font-size: 0.6rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.22rem 0.6rem; border-radius: 2px; }
 .tag-now { background: var(--now-bg); color: var(--now); }
 .tag-next { background: var(--next-bg); color: var(--next); }
 .tag-future { background: var(--future-bg); color: var(--future); }
- 
+
 .priority-select { display: flex; gap: 0.3rem; flex-wrap: wrap; }
-.prio-btn {
-  font-family: 'DM Mono', monospace; font-size: 0.6rem; letter-spacing: 0.08em;
-  font-weight: 500; text-transform: uppercase; padding: 0.2rem 0.55rem;
-  border: 1px solid var(--border); background: transparent; border-radius: 2px;
-  cursor: pointer; transition: all 0.12s; color: var(--muted);
-}
+.prio-btn { font-family: 'DM Mono', monospace; font-size: 0.6rem; letter-spacing: 0.08em; font-weight: 500; text-transform: uppercase; padding: 0.2rem 0.55rem; border: 1px solid var(--border); background: transparent; border-radius: 2px; cursor: pointer; transition: all 0.12s; color: var(--muted); }
 .prio-btn:hover { border-color: var(--muted); }
 .prio-btn.selected-now { background: var(--now-bg); color: var(--now); border-color: var(--now); }
 .prio-btn.selected-next { background: var(--next-bg); color: var(--next); border-color: var(--next); }
 .prio-btn.selected-future { background: var(--future-bg); color: var(--future); border-color: var(--future); }
 tr.t1-hidden { display: none; }
- 
-/* ══════════════════════════════════════════════════════════════════════
-   TAB 2: RICE SCORER
-══════════════════════════════════════════════════════════════════════ */
-.legend-bar {
-  background: var(--surface); border-bottom: 1px solid var(--border);
-  padding: 0.9rem 4rem; display: flex; gap: 1.5rem; align-items: center; flex-wrap: wrap;
-}
+
+/* TAB 2 */
+.legend-bar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0.9rem 4rem; display: flex; gap: 1.5rem; align-items: center; flex-wrap: wrap; }
 .legend-title { font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); }
 .leg { display: flex; align-items: center; gap: 0.4rem; font-size: 0.65rem; color: var(--muted); }
 .leg-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 .formula { margin-left: auto; font-size: 0.65rem; color: var(--muted); background: var(--bg); padding: 0.3rem 0.8rem; border-radius: 2px; border: 1px solid var(--border); }
 .formula strong { color: var(--ink); }
- 
-.t2-controls {
-  padding: 0.85rem 4rem; display: flex; gap: 0.6rem; align-items: center;
-  background: var(--bg); border-bottom: 1px solid var(--border); flex-wrap: wrap;
-}
+.t2-controls { padding: 0.85rem 4rem; display: flex; gap: 0.6rem; align-items: center; background: var(--bg); border-bottom: 1px solid var(--border); flex-wrap: wrap; }
 .ctrl-label { font-size: 0.6rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
-.t2-filter-btn {
-  font-family: 'DM Mono', monospace; font-size: 0.62rem; letter-spacing: 0.06em;
-  padding: 0.28rem 0.7rem; border: 1px solid var(--border); background: transparent;
-  border-radius: 2px; cursor: pointer; color: var(--muted); transition: all 0.12s;
-}
+.t2-filter-btn { font-family: 'DM Mono', monospace; font-size: 0.62rem; letter-spacing: 0.06em; padding: 0.28rem 0.7rem; border: 1px solid var(--border); background: transparent; border-radius: 2px; cursor: pointer; color: var(--muted); transition: all 0.12s; }
 .t2-filter-btn:hover { border-color: var(--ink); color: var(--ink); }
 .t2-filter-btn.active { background: var(--ink); color: #f4f1eb; border-color: var(--ink); }
-.sort-select {
-  font-family: 'DM Mono', monospace; font-size: 0.62rem; padding: 0.28rem 0.6rem;
-  border: 1px solid var(--border); background: var(--surface); border-radius: 2px;
-  color: var(--ink); cursor: pointer; margin-left: auto;
-}
- 
-.insights {
-  margin: 1.5rem 4rem; background: var(--ink); color: #f4f1eb;
-  border-radius: 3px; padding: 1.5rem 2rem;
-}
+.sort-select { font-family: 'DM Mono', monospace; font-size: 0.62rem; padding: 0.28rem 0.6rem; border: 1px solid var(--border); background: var(--surface); border-radius: 2px; color: var(--ink); cursor: pointer; margin-left: auto; }
+
+.insights { margin: 1.5rem 4rem; background: var(--ink); color: #f4f1eb; border-radius: 3px; padding: 1.5rem 2rem; }
 .insights-title { font-size: 0.6rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); margin-bottom: 1rem; }
 .insights-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; }
 .insight-card { border-left: 2px solid rgba(255,255,255,0.12); padding-left: 0.9rem; }
 .insight-num { font-family: 'Fraunces', serif; font-size: 1.3rem; font-weight: 600; color: var(--accent); }
 .insight-text { font-size: 0.67rem; line-height: 1.6; color: #ccc; margin-top: 0.2rem; }
- 
+
 .table-wrap { margin: 0 4rem 6rem; overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; min-width: 960px; }
-thead th {
-  font-size: 0.58rem; letter-spacing: 0.13em; text-transform: uppercase;
-  color: var(--muted); text-align: left; padding: 0.6rem 0.75rem;
-  border-bottom: 2px solid var(--ink); white-space: nowrap; background: var(--bg); cursor: pointer;
-}
+thead th { font-size: 0.58rem; letter-spacing: 0.13em; text-transform: uppercase; color: var(--muted); text-align: left; padding: 0.6rem 0.75rem; border-bottom: 2px solid var(--ink); white-space: nowrap; background: var(--bg); cursor: pointer; }
 thead th:hover { color: var(--ink); }
 .th-hint { font-size: 0.52rem; display: block; color: var(--light); font-weight: 400; letter-spacing: 0; text-transform: none; margin-top: 1px; }
 tbody tr { border-bottom: 1px solid var(--border); transition: background 0.1s; }
 tbody tr:hover { background: rgba(0,0,0,0.02); }
+tbody tr.t2-new-row { background: #fdf8ff; }
+tbody tr.t2-new-row:hover { background: #f8f0fe; }
 tbody tr.t2-hidden { display: none; }
 td { padding: 0.85rem 0.75rem; vertical-align: middle; }
- 
 .rank-num { font-family: 'Fraunces', serif; font-size: 1.1rem; font-weight: 600; color: var(--light); text-align: center; }
-.rank-num.r1 { color: var(--accent); }
-.rank-num.r2 { color: var(--next); }
-.rank-num.r3 { color: var(--now); }
- 
-.t2-feature-name { font-weight: 500; line-height: 1.45; font-size: 0.72rem; min-width: 190px; max-width: 230px; }
-.feature-cat {
-  display: inline-block; margin-top: 0.3rem; font-size: 0.56rem; letter-spacing: 0.05em;
-  color: var(--muted); background: var(--bg); padding: 0.12rem 0.4rem;
-  border-radius: 2px; border: 1px solid var(--border);
-}
+.rank-num.r1 { color: var(--accent); } .rank-num.r2 { color: var(--next); } .rank-num.r3 { color: var(--now); }
+.t2-feature-name { font-weight: 500; line-height: 1.45; font-size: 0.72rem; min-width: 190px; max-width: 240px; }
+.feature-cat { display: inline-block; margin-top: 0.3rem; font-size: 0.56rem; letter-spacing: 0.05em; color: var(--muted); background: var(--bg); padding: 0.12rem 0.4rem; border-radius: 2px; border: 1px solid var(--border); }
 .mentions-cell { white-space: nowrap; font-size: 0.68rem; color: var(--muted); }
 .mentions-num { font-weight: 500; color: var(--ink); }
- 
 .score-cell { text-align: center; }
-.score-input {
-  font-family: 'DM Mono', monospace; font-size: 0.78rem; font-weight: 500;
-  width: 46px; text-align: center; padding: 0.28rem 0.1rem;
-  border: 1px solid var(--border); border-radius: 2px; background: var(--surface);
-  color: var(--ink); transition: border-color 0.12s;
-}
+.score-input { font-family: 'DM Mono', monospace; font-size: 0.78rem; font-weight: 500; width: 46px; text-align: center; padding: 0.28rem 0.1rem; border: 1px solid var(--border); border-radius: 2px; background: var(--surface); color: var(--ink); transition: border-color 0.12s; }
 .score-input:focus { outline: none; border-color: var(--accent); }
 .score-hint { font-size: 0.54rem; color: var(--light); margin-top: 0.2rem; text-align: center; }
- 
 .rice-wrap { display: flex; align-items: center; gap: 0.5rem; min-width: 110px; }
 .rice-num { font-family: 'Fraunces', serif; font-size: 1.3rem; font-weight: 600; min-width: 42px; }
 .bar-bg { flex: 1; height: 4px; background: var(--border); border-radius: 2px; }
 .bar-fill { height: 100%; border-radius: 2px; transition: width 0.3s; }
- 
 .rice-tag { display: inline-block; font-size: 0.6rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.22rem 0.6rem; border-radius: 2px; white-space: nowrap; }
 .rice-tag-NOW { background: var(--now-bg); color: var(--now); }
 .rice-tag-NEXT { background: var(--next-bg); color: var(--next); }
 .rice-tag-FUTURE { background: var(--future-bg); color: var(--future); }
- 
-/* ─── SHARED FOOTER BAR ───────────────────────────────────────────────── */
-.footer-bar {
-  position: fixed; bottom: 0; left: 0; right: 0;
-  background: var(--ink); color: #f4f1eb;
-  padding: 0.85rem 4rem; display: flex; align-items: center;
-  justify-content: space-between; font-size: 0.68rem; z-index: 200;
-  border-top: 2px solid var(--accent);
-}
-.footer-counts { display: flex; gap: 2rem; }
-.fc { color: #888; }
-.fc span { color: #f4f1eb; font-weight: 500; }
-.export-btn {
-  font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.1em;
-  font-weight: 500; text-transform: uppercase; padding: 0.45rem 1.2rem;
-  background: var(--accent); color: white; border: none; border-radius: 2px;
-  cursor: pointer; transition: opacity 0.15s;
-}
+
+.footer-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--ink); color: #f4f1eb; padding: 0.85rem 4rem; display: flex; align-items: center; justify-content: space-between; font-size: 0.68rem; z-index: 200; border-top: 2px solid var(--accent); }
+.footer-counts { display: flex; gap: 2rem; flex-wrap: wrap; }
+.fc { color: #888; } .fc span { color: #f4f1eb; font-weight: 500; }
+.export-btn { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.1em; font-weight: 500; text-transform: uppercase; padding: 0.45rem 1.2rem; background: var(--accent); color: white; border: none; border-radius: 2px; cursor: pointer; transition: opacity 0.15s; }
 .export-btn:hover { opacity: 0.85; }
- 
+
 @media (max-width: 900px) {
-  .header, .t1-controls, .t1-main, .footer-bar,
-  .legend-bar, .t2-controls, .insights, .table-wrap { padding-left: 1.5rem; padding-right: 1.5rem; }
+  .header, .t1-controls, .t1-main, .footer-bar, .legend-bar, .t2-controls, .insights, .table-wrap { padding-left: 1.5rem; padding-right: 1.5rem; }
   .col-desc { display: none; }
 }
 </style>
 </head>
 <body>
- 
-<!-- SHARED HEADER -->
+
 <div class="header">
   <div class="header-label">Product Prioritisation Workshop · Insurer Rules Overlay</div>
-  <h1>Feature Framework<br>&amp; RICE Scoring</h1>
-  <div class="header-sub">72 feedback items · 10 participants · Mar 2026</div>
+  <h1>Feature Framework &amp; RICE Scoring <span class="header-new">Updated</span></h1>
+  <div class="header-sub">97 feedback items · 12 participants · Mar 2026 · Includes Liam O'Dowd &amp; Shari Agnew</div>
   <div class="header-stats">
-    <div class="stat"><span class="stat-num">28</span><span class="stat-label">Features</span></div>
+    <div class="stat"><span class="stat-num">40</span><span class="stat-label">Features</span></div>
     <div class="stat"><span class="stat-num">6</span><span class="stat-label">Categories</span></div>
-    <div class="stat"><span class="stat-num">10</span><span class="stat-label">Participants</span></div>
-    <div class="stat"><span class="stat-num">72</span><span class="stat-label">Raw Items</span></div>
+    <div class="stat"><span class="stat-num">12</span><span class="stat-label">Participants</span></div>
+    <div class="stat"><span class="stat-num">97</span><span class="stat-label">Raw Items</span></div>
   </div>
 </div>
- 
-<!-- TAB BAR -->
+
 <div class="tab-bar">
-  <button class="tab-btn active" onclick="switchTab('t1', this)">
-    Now / Next / Future
-    <span class="tab-label-sub">Workshop — mark final priorities</span>
-  </button>
-  <button class="tab-btn" onclick="switchTab('t2', this)">
-    RICE Scoring
-    <span class="tab-label-sub">Edit scores · live re-rank</span>
-  </button>
+  <button class="tab-btn active" onclick="switchTab('t1', this)">Now / Next / Future<span class="tab-label-sub">Workshop — mark final priorities</span></button>
+  <button class="tab-btn" onclick="switchTab('t2', this)">RICE Scoring<span class="tab-label-sub">Edit scores · live re-rank</span></button>
 </div>
- 
-<!-- ══════════════════════════════════════════════════
+
+<!-- ═══════════════════════════════════════════════════════
      TAB 1: NOW / NEXT / FUTURE
-══════════════════════════════════════════════════ -->
+═══════════════════════════════════════════════════════ -->
 <div id="tab-t1" class="tab-panel active">
- 
   <div class="t1-controls">
     <div class="t1-filter-group">
-      <button class="t1-filter-btn active" onclick="t1FilterBy('all', this)">All Features</button>
-      <button class="t1-filter-btn" onclick="t1FilterBy('NOW', this)">NOW</button>
-      <button class="t1-filter-btn" onclick="t1FilterBy('NEXT', this)">NEXT</button>
-      <button class="t1-filter-btn" onclick="t1FilterBy('FUTURE', this)">FUTURE</button>
-      <button class="t1-filter-btn" onclick="t1FilterBy('unset', this)">Undecided</button>
+      <button class="t1-filter-btn active" onclick="t1FilterBy('all',this)">All Features</button>
+      <button class="t1-filter-btn" onclick="t1FilterBy('NOW',this)">NOW</button>
+      <button class="t1-filter-btn" onclick="t1FilterBy('NEXT',this)">NEXT</button>
+      <button class="t1-filter-btn" onclick="t1FilterBy('FUTURE',this)">FUTURE</button>
+      <button class="t1-filter-btn" onclick="t1FilterBy('unset',this)">Undecided</button>
+      <button class="t1-filter-btn" onclick="t1FilterBy('new',this)" style="border-color:#d8b0e8;color:#7b2d8b">New ✦</button>
     </div>
     <div class="t1-legend">
-      <div class="t1-legend-item"><div class="t1-legend-dot" style="background:var(--now)"></div>NOW — Ship it</div>
-      <div class="t1-legend-item"><div class="t1-legend-dot" style="background:var(--next)"></div>NEXT — Validate</div>
-      <div class="t1-legend-item"><div class="t1-legend-dot" style="background:var(--future)"></div>FUTURE — Monitor</div>
+      <div class="t1-legend-item"><div class="t1-legend-dot" style="background:var(--now)"></div>NOW</div>
+      <div class="t1-legend-item"><div class="t1-legend-dot" style="background:var(--next)"></div>NEXT</div>
+      <div class="t1-legend-item"><div class="t1-legend-dot" style="background:var(--future)"></div>FUTURE</div>
+      <div class="t1-legend-item"><div class="t1-legend-dot" style="background:#7b2d8b"></div>New this round</div>
     </div>
   </div>
- 
+
   <div class="t1-main" id="t1MainContent">
- 
-    <!-- CATEGORY: Availability & Decision Context -->
+
+    <!-- ── AVAILABILITY & DECISION CONTEXT ── -->
     <div class="category-section" data-category="availability">
-      <div class="category-header">
-        <span class="category-name">Availability &amp; Decision Context</span>
-        <span class="category-count">5 features</span>
-      </div>
-      <table class="feature-table"><thead><tr>
-        <th class="col-feature">Feature</th><th class="col-desc">Description</th>
-        <th class="col-mentions">Mentions</th><th class="col-suggested">Suggested</th>
-        <th class="col-final">Final Priority</th>
-      </tr></thead><tbody>
-        <tr data-suggested="NOW" data-final="">
-          <td><div class="t1-feature-name">Inline availability &amp; ETA on the grid screen</div></td>
-          <td><div class="t1-feature-desc">Stock status, lead time, and source location shown directly on the grid — no hover required — before any part is selected.</div></td>
-          <td><div class="mention-badge">7 users</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td>
+      <div class="category-header"><span class="category-name">Availability &amp; Decision Context</span><span class="category-count">7 features</span></div>
+      <table class="feature-table"><thead><tr><th class="col-feature">Feature</th><th class="col-desc">Description</th><th class="col-mentions">Mentions</th><th class="col-suggested">Suggested</th><th class="col-final">Final Priority</th></tr></thead><tbody>
+
+        <tr data-suggested="NOW" data-final="" data-isnew="false">
+          <td><div class="t1-feature-name">Inline availability &amp; ETA on the grid screen <span class="updated-badge">↑ 9 users</span></div></td>
+          <td><div class="t1-feature-desc">Stock status, lead time, and source location shown directly on the grid — no hover required. Now also confirmed by Liam and Shari as a core decision blocker.</div></td>
+          <td><div class="mention-badge">9 users</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td>
           <td><span class="tag tag-now">NOW</span></td>
           <td><div class="priority-select"><button class="prio-btn" onclick="t1SetPriority(this,'NOW')">NOW</button><button class="prio-btn" onclick="t1SetPriority(this,'NEXT')">NEXT</button><button class="prio-btn" onclick="t1SetPriority(this,'FUTURE')">FUTURE</button></div></td>
         </tr>
-        <tr data-suggested="NOW" data-final="">
+
+        <tr data-suggested="NOW" data-final="" data-isnew="false">
           <td><div class="t1-feature-name">Availability factored into auto-select logic</div></td>
           <td><div class="t1-feature-desc">Auto-select must not recommend backordered or long-lead-time parts; availability must be a weighted input alongside compliance and margin.</div></td>
-          <td><div class="mention-badge">6 users</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td>
+          <td><div class="mention-badge">6 users</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td>
           <td><span class="tag tag-now">NOW</span></td>
           <td><div class="priority-select"><button class="prio-btn" onclick="t1SetPriority(this,'NOW')">NOW</button><button class="prio-btn" onclick="t1SetPriority(this,'NEXT')">NEXT</button><button class="prio-btn" onclick="t1SetPriority(this,'FUTURE')">FUTURE</button></div></td>
         </tr>
-        <tr data-suggested="NOW" data-final="">
+
+        <tr data-suggested="NOW" data-final="" data-isnew="false">
           <td><div class="t1-feature-name">Supplier comments visible inline under part lines</div></td>
           <td><div class="t1-feature-desc">Dealer/supplier notes (e.g. "4–6 weeks Japan") shown directly under the part row, not hidden in a hover state, and flowing back into the estimating system.</div></td>
-          <td><div class="mention-badge">3 users</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td>
+          <td><div class="mention-badge">3 users</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td>
           <td><span class="tag tag-now">NOW</span></td>
           <td><div class="priority-select"><button class="prio-btn" onclick="t1SetPriority(this,'NOW')">NOW</button><button class="prio-btn" onclick="t1SetPriority(this,'NEXT')">NEXT</button><button class="prio-btn" onclick="t1SetPriority(this,'FUTURE')">FUTURE</button></div></td>
         </tr>
-        <tr data-suggested="NEXT" data-final="">
+
+        <tr data-suggested="NOW" data-final="" data-isnew="true" class="row-new">
+          <td><div class="t1-feature-name">Delivery cut-off times &amp; AM/PM ETA accuracy <span class="new-badge">New</span></div></td>
+          <td><div class="t1-feature-desc">Parts show as "in stock" but arrive 2–3 days late. Supplier delivery cut-offs are not surfaced. Repairers need AM vs PM delivery windows per supplier to plan bays reliably.</div></td>
+          <td><div class="mention-badge">1 user</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td>
+          <td><span class="tag tag-next">NEXT</span></td>
+          <td><div class="priority-select"><button class="prio-btn" onclick="t1SetPriority(this,'NOW')">NOW</button><button class="prio-btn" onclick="t1SetPriority(this,'NEXT')">NEXT</button><button class="prio-btn" onclick="t1SetPriority(this,'FUTURE')">FUTURE</button></div></td>
+        </tr>
+
+        <tr data-suggested="NEXT" data-final="" data-isnew="true" class="row-new">
+          <td><div class="t1-feature-name">ETA update capability on overdue orders <span class="new-badge">New</span></div></td>
+          <td><div class="t1-feature-desc">When a supplier revises an ETA verbally or by email, repairers have no way to update the expected delivery date in PartsCheck — overdue lists become inaccurate and untrustworthy.</div></td>
+          <td><div class="mention-badge">1 user</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td>
+          <td><span class="tag tag-next">NEXT</span></td>
+          <td><div class="priority-select"><button class="prio-btn" onclick="t1SetPriority(this,'NOW')">NOW</button><button class="prio-btn" onclick="t1SetPriority(this,'NEXT')">NEXT</button><button class="prio-btn" onclick="t1SetPriority(this,'FUTURE')">FUTURE</button></div></td>
+        </tr>
+
+        <tr data-suggested="NEXT" data-final="" data-isnew="false">
           <td><div class="t1-feature-name">Freight costs visible at RFQ time</div></td>
           <td><div class="t1-feature-desc">Freight, delivery levies, and environmental fees shown before ordering so repairers can make accurate total-cost decisions and avoid invoice reconciliation surprises.</div></td>
-          <td><div class="mention-badge">3 users</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td>
+          <td><div class="mention-badge">3 users</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td>
           <td><span class="tag tag-next">NEXT</span></td>
           <td><div class="priority-select"><button class="prio-btn" onclick="t1SetPriority(this,'NOW')">NOW</button><button class="prio-btn" onclick="t1SetPriority(this,'NEXT')">NEXT</button><button class="prio-btn" onclick="t1SetPriority(this,'FUTURE')">FUTURE</button></div></td>
         </tr>
-        <tr data-suggested="NEXT" data-final="">
+
+        <tr data-suggested="NEXT" data-final="" data-isnew="false">
           <td><div class="t1-feature-name">Availability status on printed parts report</div></td>
           <td><div class="t1-feature-desc">Insurer-required printed parts list to include source location and lead time so staff can send without manually annotating with screenshots.</div></td>
-          <td><div class="mention-badge">1 user</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td>
+          <td><div class="mention-badge">1 user</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td>
           <td><span class="tag tag-next">NEXT</span></td>
           <td><div class="priority-select"><button class="prio-btn" onclick="t1SetPriority(this,'NOW')">NOW</button><button class="prio-btn" onclick="t1SetPriority(this,'NEXT')">NEXT</button><button class="prio-btn" onclick="t1SetPriority(this,'FUTURE')">FUTURE</button></div></td>
         </tr>
+
       </tbody></table>
     </div>
- 
-    <!-- CATEGORY: Automation / Auto-Select -->
+
+    <!-- ── AUTOMATION / AUTO-SELECT ── -->
     <div class="category-section" data-category="automation">
-      <div class="category-header">
-        <span class="category-name">Automation / Auto-Select</span>
-        <span class="category-count">6 features</span>
-      </div>
-      <table class="feature-table"><thead><tr>
-        <th class="col-feature">Feature</th><th class="col-desc">Description</th>
-        <th class="col-mentions">Mentions</th><th class="col-suggested">Suggested</th>
-        <th class="col-final">Final Priority</th>
-      </tr></thead><tbody>
-        <tr data-suggested="NOW" data-final="">
+      <div class="category-header"><span class="category-name">Automation / Auto-Select</span><span class="category-count">7 features</span></div>
+      <table class="feature-table"><thead><tr><th class="col-feature">Feature</th><th class="col-desc">Description</th><th class="col-mentions">Mentions</th><th class="col-suggested">Suggested</th><th class="col-final">Final Priority</th></tr></thead><tbody>
+
+        <tr data-suggested="NOW" data-final="" data-isnew="false">
           <td><div class="t1-feature-name">Auto-select is optional and easily overridable</div></td>
-          <td><div class="t1-feature-desc">"Guide, don't decide" — auto-select fires as a button/toggle, not a default; experienced estimators retain full manual control over every selection.</div></td>
-          <td><div class="mention-badge">5 users</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td>
+          <td><div class="t1-feature-desc">"Guide, don't decide" — auto-select fires as a button/toggle, not a default; experienced estimators retain full manual control.</div></td>
+          <td><div class="mention-badge">5 users</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td>
           <td><span class="tag tag-now">NOW</span></td>
           <td><div class="priority-select"><button class="prio-btn" onclick="t1SetPriority(this,'NOW')">NOW</button><button class="prio-btn" onclick="t1SetPriority(this,'NEXT')">NEXT</button><button class="prio-btn" onclick="t1SetPriority(this,'FUTURE')">FUTURE</button></div></td>
         </tr>
-        <tr data-suggested="NOW" data-final="">
+
+        <tr data-suggested="NOW" data-final="" data-isnew="false">
           <td><div class="t1-feature-name">Auto-select triggers on job load, not just button click</div></td>
-          <td><div class="t1-feature-desc">Repairers want selections pre-applied when they open a job number, removing an extra click and streamlining the quote start.</div></td>
-          <td><div class="mention-badge">2 users</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td>
+          <td><div class="t1-feature-desc">Repairers want selections pre-applied when they open a job number, removing an extra click and streamlining quote start.</div></td>
+          <td><div class="mention-badge">2 users</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td>
           <td><span class="tag tag-now">NOW</span></td>
           <td><div class="priority-select"><button class="prio-btn" onclick="t1SetPriority(this,'NOW')">NOW</button><button class="prio-btn" onclick="t1SetPriority(this,'NEXT')">NEXT</button><button class="prio-btn" onclick="t1SetPriority(this,'FUTURE')">FUTURE</button></div></td>
         </tr>
-        <tr data-suggested="NEXT" data-final="">
+
+        <tr data-suggested="NOW" data-final="" data-isnew="true" class="row-new">
+          <td><div class="t1-feature-name">Auto-select value proposition clearly differentiated from 'Cheapest' <span class="new-badge">New</span></div></td>
+          <td><div class="t1-feature-desc">Shari's current workflow is 'click cheapest then manually check stock.' The distinction between cheapest select and rule-based auto-select was not self-evident — required verbal explanation. UI must communicate this clearly.</div></td>
+          <td><div class="mention-badge">2 users</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td>
+          <td><span class="tag tag-now">NOW</span></td>
+          <td><div class="priority-select"><button class="prio-btn" onclick="t1SetPriority(this,'NOW')">NOW</button><button class="prio-btn" onclick="t1SetPriority(this,'NEXT')">NEXT</button><button class="prio-btn" onclick="t1SetPriority(this,'FUTURE')">FUTURE</button></div></td>
+        </tr>
+
+        <tr data-suggested="NEXT" data-final="" data-isnew="false">
           <td><div class="t1-feature-name">Basket-of-goods auto-select logic (not line-by-line)</div></td>
           <td><div class="t1-feature-desc">Auto-select evaluates the full basket — supplier mix, relative pricing, availability trade-offs — rather than optimising each line independently.</div></td>
-          <td><div class="mention-badge">2 users</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td>
+          <td><div class="mention-badge">2 users</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td>
           <td><span class="tag tag-next">NEXT</span></td>
           <td><div class="priority-select"><button class="prio-btn" onclick="t1SetPriority(this,'NOW')">NOW</button><button class="prio-btn" onclick="t1SetPriority(this,'NEXT')">NEXT</button><button class="prio-btn" onclick="t1SetPriority(this,'FUTURE')">FUTURE</button></div></td>
         </tr>
-        <tr data-suggested="NEXT" data-final="">
+
+        <tr data-suggested="NEXT" data-final="" data-isnew="false">
           <td><div class="t1-feature-name">Policy-level rule resolution within an insurer</div></td>
           <td><div class="t1-feature-desc">Insurer rules differ by policy type (in-warranty vs. out-of-warranty); auto-select must resolve at policy level, not apply a single insurer-level rule.</div></td>
-          <td><div class="mention-badge">1 user</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td>
+          <td><div class="mention-badge">1 user</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td>
           <td><span class="tag tag-next">NEXT</span></td>
           <td><div class="priority-select"><button class="prio-btn" onclick="t1SetPriority(this,'NOW')">NOW</button><button class="prio-btn" onclick="t1SetPriority(this,'NEXT')">NEXT</button><button class="prio-btn" onclick="t1SetPriority(this,'FUTURE')">FUTURE</button></div></td>
         </tr>
-        <tr data-suggested="FUTURE" data-final="">
+
+        <tr data-suggested="FUTURE" data-final="" data-isnew="false">
           <td><div class="t1-feature-name">High-value part approval workflow</div></td>
-          <td><div class="t1-feature-desc">Configurable price threshold that prevents an estimator completing an order above the limit without manager approval — with a manager override button.</div></td>
-          <td><div class="mention-badge">2 users</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td>
+          <td><div class="t1-feature-desc">Configurable price threshold preventing an estimator completing an order above the limit without manager approval — with manager override button.</div></td>
+          <td><div class="mention-badge">2 users</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td>
           <td><span class="tag tag-future">FUTURE</span></td>
           <td><div class="priority-select"><button class="prio-btn" onclick="t1SetPriority(this,'NOW')">NOW</button><button class="prio-btn" onclick="t1SetPriority(this,'NEXT')">NEXT</button><button class="prio-btn" onclick="t1SetPriority(this,'FUTURE')">FUTURE</button></div></td>
         </tr>
-        <tr data-suggested="FUTURE" data-final="">
+
+        <tr data-suggested="FUTURE" data-final="" data-isnew="false">
           <td><div class="t1-feature-name">Hide insurer name from suppliers</div></td>
-          <td><div class="t1-feature-desc">Suppliers should not see which insurer is on a job to prevent dynamic pricing adjustments; confirmation this is already the case was positively received.</div></td>
-          <td><div class="mention-badge">1 user</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td>
+          <td><div class="t1-feature-desc">Suppliers should not see which insurer is on a job to prevent dynamic pricing adjustments.</div></td>
+          <td><div class="mention-badge">1 user</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td>
           <td><span class="tag tag-future">FUTURE</span></td>
           <td><div class="priority-select"><button class="prio-btn" onclick="t1SetPriority(this,'NOW')">NOW</button><button class="prio-btn" onclick="t1SetPriority(this,'NEXT')">NEXT</button><button class="prio-btn" onclick="t1SetPriority(this,'FUTURE')">FUTURE</button></div></td>
         </tr>
+
       </tbody></table>
     </div>
- 
-    <!-- CATEGORY: Rule Configuration -->
+
+    <!-- ── RULE CONFIGURATION ── -->
     <div class="category-section" data-category="rules">
-      <div class="category-header">
-        <span class="category-name">Rule Configuration</span>
-        <span class="category-count">6 features</span>
-      </div>
-      <table class="feature-table"><thead><tr>
-        <th class="col-feature">Feature</th><th class="col-desc">Description</th>
-        <th class="col-mentions">Mentions</th><th class="col-suggested">Suggested</th>
-        <th class="col-final">Final Priority</th>
-      </tr></thead><tbody>
-        <tr data-suggested="NOW" data-final=""><td><div class="t1-feature-name">Part-type restrictions configurable per insurer rule</div></td><td><div class="t1-feature-desc">Allow shops to set which part types (OEM, aftermarket, secondhand) are permitted or blocked per insurer, so auto-select never presents disallowed options.</div></td><td><div class="mention-badge">3 users</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td><td><span class="tag tag-now">NOW</span></td><td><div class="priority-select"><button class="prio-btn" onclick="t1SetPriority(this,'NOW')">NOW</button><button class="prio-btn" onclick="t1SetPriority(this,'NEXT')">NEXT</button><button class="prio-btn" onclick="t1SetPriority(this,'FUTURE')">FUTURE</button></div></td></tr>
-        <tr data-suggested="NOW" data-final=""><td><div class="t1-feature-name">List-minus pricing type supported</div></td><td><div class="t1-feature-desc">Add list minus X% as a rule type alongside cost plus %; required for Allianz OEM mandate — without it, auto-select accuracy is fundamentally broken for MSO accounts.</div></td><td><div class="mention-badge">1 user</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td><td><span class="tag tag-now">NOW</span></td><td><div class="priority-select"><button class="prio-btn" onclick="t1SetPriority(this,'NOW')">NOW</button><button class="prio-btn" onclick="t1SetPriority(this,'NEXT')">NEXT</button><button class="prio-btn" onclick="t1SetPriority(this,'FUTURE')">FUTURE</button></div></td></tr>
-        <tr data-suggested="NOW" data-final=""><td><div class="t1-feature-name">Pre-built insurer rule templates (set and forget)</div></td><td><div class="t1-feature-desc">Baseline insurer templates available at onboarding so shops can activate accurate rules with minimal configuration effort — critical for adoption by simpler shops.</div></td><td><div class="mention-badge">4 users</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td><td><span class="tag tag-now">NOW</span></td><td><div class="priority-select"><button class="prio-btn" onclick="t1SetPriority(this,'NOW')">NOW</button><button class="prio-btn" onclick="t1SetPriority(this,'NEXT')">NEXT</button><button class="prio-btn" onclick="t1SetPriority(this,'FUTURE')">FUTURE</button></div></td></tr>
-        <tr data-suggested="NEXT" data-final=""><td><div class="t1-feature-name">Single global rule option (one rule for all insurers)</div></td><td><div class="t1-feature-desc">Simpler shops with a uniform margin across all insurers should be able to set one rule globally rather than configure each insurer separately.</div></td><td><div class="mention-badge">2 users</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td><td><span class="tag tag-next">NEXT</span></td><td><div class="priority-select"><button class="prio-btn" onclick="t1SetPriority(this,'NOW')">NOW</button><button class="prio-btn" onclick="t1SetPriority(this,'NEXT')">NEXT</button><button class="prio-btn" onclick="t1SetPriority(this,'FUTURE')">FUTURE</button></div></td></tr>
-        <tr data-suggested="NEXT" data-final=""><td><div class="t1-feature-name">Per-supplier insurer-name sharing toggle</div></td><td><div class="t1-feature-desc">Allow insurer name sharing to be enabled per supplier (not globally) — blocking MSO participation in Allianz/IAG recycled parts trials where sharing is required for specific suppliers.</div></td><td><div class="mention-badge">1 user</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td><td><span class="tag tag-next">NEXT</span></td><td><div class="priority-select"><button class="prio-btn" onclick="t1SetPriority(this,'NOW')">NOW</button><button class="prio-btn" onclick="t1SetPriority(this,'NEXT')">NEXT</button><button class="prio-btn" onclick="t1SetPriority(this,'FUTURE')">FUTURE</button></div></td></tr>
-        <tr data-suggested="FUTURE" data-final=""><td><div class="t1-feature-name">Supplier-level negotiated freight / fee terms config</div></td><td><div class="t1-feature-desc">Configuration table per supplier to record agreed no-freight or no-levy terms, so suppliers receiving RFQs understand the repairer's standing commercial terms.</div></td><td><div class="mention-badge">1 user</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td><td><span class="tag tag-future">FUTURE</span></td><td><div class="priority-select"><button class="prio-btn" onclick="t1SetPriority(this,'NOW')">NOW</button><button class="prio-btn" onclick="t1SetPriority(this,'NEXT')">NEXT</button><button class="prio-btn" onclick="t1SetPriority(this,'FUTURE')">FUTURE</button></div></td></tr>
+      <div class="category-header"><span class="category-name">Rule Configuration</span><span class="category-count">9 features</span></div>
+      <table class="feature-table"><thead><tr><th class="col-feature">Feature</th><th class="col-desc">Description</th><th class="col-mentions">Mentions</th><th class="col-suggested">Suggested</th><th class="col-final">Final Priority</th></tr></thead><tbody>
+
+        <tr data-suggested="NOW" data-final="" data-isnew="false">
+          <td><div class="t1-feature-name">Part-type restrictions configurable per insurer rule <span class="updated-badge">↑ 4 users</span></div></td>
+          <td><div class="t1-feature-desc">Shops set which part types (OEM, aftermarket, secondhand, safety components) are permitted per insurer so auto-select never presents disallowed options. Liam specifically called out safety/structural component restriction positively.</div></td>
+          <td><div class="mention-badge">4 users</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td>
+          <td><span class="tag tag-now">NOW</span></td>
+          <td><div class="priority-select"><button class="prio-btn" onclick="t1SetPriority(this,'NOW')">NOW</button><button class="prio-btn" onclick="t1SetPriority(this,'NEXT')">NEXT</button><button class="prio-btn" onclick="t1SetPriority(this,'FUTURE')">FUTURE</button></div></td>
+        </tr>
+
+        <tr data-suggested="NOW" data-final="" data-isnew="false">
+          <td><div class="t1-feature-name">List-minus pricing type supported</div></td>
+          <td><div class="t1-feature-desc">Add list minus X% as a rule type alongside cost plus %; required for Allianz OEM mandate — without it, auto-select accuracy is fundamentally broken for MSO accounts.</div></td>
+          <td><div class="mention-badge">1 user</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td>
+          <td><span class="tag tag-now">NOW</span></td>
+          <td><div class="priority-select"><button class="prio-btn" onclick="t1SetPriority(this,'NOW')">NOW</button><button class="prio-btn" onclick="t1SetPriority(this,'NEXT')">NEXT</button><button class="prio-btn" onclick="t1SetPriority(this,'FUTURE')">FUTURE</button></div></td>
+        </tr>
+
+        <tr data-suggested="NOW" data-final="" data-isnew="false">
+          <td><div class="t1-feature-name">Pre-built insurer rule templates (set and forget)</div></td>
+          <td><div class="t1-feature-desc">Baseline insurer templates available at onboarding so shops can activate accurate rules with minimal configuration effort — critical for simpler shops.</div></td>
+          <td><div class="mention-badge">4 users</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td>
+          <td><span class="tag tag-now">NOW</span></td>
+          <td><div class="priority-select"><button class="prio-btn" onclick="t1SetPriority(this,'NOW')">NOW</button><button class="prio-btn" onclick="t1SetPriority(this,'NEXT')">NEXT</button><button class="prio-btn" onclick="t1SetPriority(this,'FUTURE')">FUTURE</button></div></td>
+        </tr>
+
+        <tr data-suggested="NOW" data-final="" data-isnew="true" class="row-new">
+          <td><div class="t1-feature-name">Pricing method % labelling — markup vs. of list clearly stated <span class="new-badge">New</span></div></td>
+          <td><div class="t1-feature-desc">Shari: "Is that cost plus 20% or 20% of list?" Percentage fields on the margin settings screen have no basis label. Different insurers use different conventions. Without clear labelling, repairers will configure rules incorrectly.</div></td>
+          <td><div class="mention-badge">2 users</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td>
+          <td><span class="tag tag-now">NOW</span></td>
+          <td><div class="priority-select"><button class="prio-btn" onclick="t1SetPriority(this,'NOW')">NOW</button><button class="prio-btn" onclick="t1SetPriority(this,'NEXT')">NEXT</button><button class="prio-btn" onclick="t1SetPriority(this,'FUTURE')">FUTURE</button></div></td>
+        </tr>
+
+        <tr data-suggested="NEXT" data-final="" data-isnew="false">
+          <td><div class="t1-feature-name">Single global rule option (one rule for all insurers)</div></td>
+          <td><div class="t1-feature-desc">Simpler shops with a uniform margin across all insurers should be able to set one rule globally rather than configure each insurer separately.</div></td>
+          <td><div class="mention-badge">2 users</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td>
+          <td><span class="tag tag-next">NEXT</span></td>
+          <td><div class="priority-select"><button class="prio-btn" onclick="t1SetPriority(this,'NOW')">NOW</button><button class="prio-btn" onclick="t1SetPriority(this,'NEXT')">NEXT</button><button class="prio-btn" onclick="t1SetPriority(this,'FUTURE')">FUTURE</button></div></td>
+        </tr>
+
+        <tr data-suggested="NEXT" data-final="" data-isnew="true" class="row-new">
+          <td><div class="t1-feature-name">Allianz combination rule logic (OR/AND) <span class="new-badge">New</span></div></td>
+          <td><div class="t1-feature-desc">Allianz allows two parallel pricing methods (80% of list OR 20% of list plus cost). The rules engine supports only a single method per rule. Liam manually calculates both to pick the higher-margin option — auto-select will make sub-optimal picks until conditional logic is supported.</div></td>
+          <td><div class="mention-badge">1 user</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td>
+          <td><span class="tag tag-next">NEXT</span></td>
+          <td><div class="priority-select"><button class="prio-btn" onclick="t1SetPriority(this,'NOW')">NOW</button><button class="prio-btn" onclick="t1SetPriority(this,'NEXT')">NEXT</button><button class="prio-btn" onclick="t1SetPriority(this,'FUTURE')">FUTURE</button></div></td>
+        </tr>
+
+        <tr data-suggested="NEXT" data-final="" data-isnew="false">
+          <td><div class="t1-feature-name">Per-supplier insurer-name sharing toggle</div></td>
+          <td><div class="t1-feature-desc">Allow insurer name sharing to be enabled per supplier (not globally) — blocking MSO participation in Allianz/IAG recycled parts trials.</div></td>
+          <td><div class="mention-badge">1 user</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td>
+          <td><span class="tag tag-next">NEXT</span></td>
+          <td><div class="priority-select"><button class="prio-btn" onclick="t1SetPriority(this,'NOW')">NOW</button><button class="prio-btn" onclick="t1SetPriority(this,'NEXT')">NEXT</button><button class="prio-btn" onclick="t1SetPriority(this,'FUTURE')">FUTURE</button></div></td>
+        </tr>
+
+        <tr data-suggested="FUTURE" data-final="" data-isnew="true" class="row-new">
+          <td><div class="t1-feature-name">Custom part number presets in modify button <span class="new-badge">New</span></div></td>
+          <td><div class="t1-feature-desc">The modify button's preset library is fixed — users can't create custom presets tied to specific insurer rules (e.g. "For Allianz parallel, always apply this format"). Relevant for shops with non-standard insurer-specific part labelling requirements.</div></td>
+          <td><div class="mention-badge">1 user</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td>
+          <td><span class="tag tag-future">FUTURE</span></td>
+          <td><div class="priority-select"><button class="prio-btn" onclick="t1SetPriority(this,'NOW')">NOW</button><button class="prio-btn" onclick="t1SetPriority(this,'NEXT')">NEXT</button><button class="prio-btn" onclick="t1SetPriority(this,'FUTURE')">FUTURE</button></div></td>
+        </tr>
+
+        <tr data-suggested="FUTURE" data-final="" data-isnew="false">
+          <td><div class="t1-feature-name">Supplier-level negotiated freight / fee terms config</div></td>
+          <td><div class="t1-feature-desc">Configuration table per supplier to record agreed no-freight or no-levy terms, so suppliers receiving RFQs understand the repairer's standing commercial terms.</div></td>
+          <td><div class="mention-badge">1 user</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td>
+          <td><span class="tag tag-future">FUTURE</span></td>
+          <td><div class="priority-select"><button class="prio-btn" onclick="t1SetPriority(this,'NOW')">NOW</button><button class="prio-btn" onclick="t1SetPriority(this,'NEXT')">NEXT</button><button class="prio-btn" onclick="t1SetPriority(this,'FUTURE')">FUTURE</button></div></td>
+        </tr>
+
       </tbody></table>
     </div>
- 
-    <!-- CATEGORY: Adoption & Setup -->
+
+    <!-- ── ADOPTION & SETUP ── -->
     <div class="category-section" data-category="adoption">
-      <div class="category-header">
-        <span class="category-name">Adoption &amp; Setup</span>
-        <span class="category-count">5 features</span>
-      </div>
-      <table class="feature-table"><thead><tr>
-        <th class="col-feature">Feature</th><th class="col-desc">Description</th>
-        <th class="col-mentions">Mentions</th><th class="col-suggested">Suggested</th>
-        <th class="col-final">Final Priority</th>
-      </tr></thead><tbody>
-        <tr data-suggested="NOW" data-final=""><td><div class="t1-feature-name">Dedicated margin rules settings page (outside quote flow)</div></td><td><div class="t1-feature-desc">Margin rules must live in a standalone settings area, not buried inside an active quote — repairers configure rules once per insurer contract cycle, not per job.</div></td><td><div class="mention-badge">4 users</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td><td><span class="tag tag-now">NOW</span></td><td><div class="priority-select"><button class="prio-btn" onclick="t1SetPriority(this,'NOW')">NOW</button><button class="prio-btn" onclick="t1SetPriority(this,'NEXT')">NEXT</button><button class="prio-btn" onclick="t1SetPriority(this,'FUTURE')">FUTURE</button></div></td></tr>
-        <tr data-suggested="NOW" data-final=""><td><div class="t1-feature-name">Feature discoverability — insurer rules not known to exist</div></td><td><div class="t1-feature-desc">Multiple repairers had no idea the rules feature existed; proactive surfacing at onboarding or in the UI is required before adoption can happen.</div></td><td><div class="mention-badge">3 users</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td><td><span class="tag tag-now">NOW</span></td><td><div class="priority-select"><button class="prio-btn" onclick="t1SetPriority(this,'NOW')">NOW</button><button class="prio-btn" onclick="t1SetPriority(this,'NEXT')">NEXT</button><button class="prio-btn" onclick="t1SetPriority(this,'FUTURE')">FUTURE</button></div></td></tr>
-        <tr data-suggested="NOW" data-final=""><td><div class="t1-feature-name">'Select All' in onboarding insurer selection step</div></td><td><div class="t1-feature-desc">Shops with large insurer lists (across states) need a Select All option when applying a rule during onboarding — individual selection is tedious and error-prone.</div></td><td><div class="mention-badge">2 users</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td><td><span class="tag tag-now">NOW</span></td><td><div class="priority-select"><button class="prio-btn" onclick="t1SetPriority(this,'NOW')">NOW</button><button class="prio-btn" onclick="t1SetPriority(this,'NEXT')">NEXT</button><button class="prio-btn" onclick="t1SetPriority(this,'FUTURE')">FUTURE</button></div></td></tr>
-        <tr data-suggested="NOW" data-final=""><td><div class="t1-feature-name">Role-based access control for margin settings</div></td><td><div class="t1-feature-desc">Estimators should not be able to access or change admin-level margin configuration; role segmentation is currently insufficient and being exploited.</div></td><td><div class="mention-badge">1 user</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td><td><span class="tag tag-now">NOW</span></td><td><div class="priority-select"><button class="prio-btn" onclick="t1SetPriority(this,'NOW')">NOW</button><button class="prio-btn" onclick="t1SetPriority(this,'NEXT')">NEXT</button><button class="prio-btn" onclick="t1SetPriority(this,'FUTURE')">FUTURE</button></div></td></tr>
-        <tr data-suggested="NEXT" data-final=""><td><div class="t1-feature-name">Admin margin settings screen broken for MSO accounts</div></td><td><div class="t1-feature-desc">The admin screen disappeared after a dashboard update for at least one MSO; self-service rule management is lost and changes require manual support team intervention.</div></td><td><div class="mention-badge">1 user</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td><td><span class="tag tag-next">NEXT</span></td><td><div class="priority-select"><button class="prio-btn" onclick="t1SetPriority(this,'NOW')">NOW</button><button class="prio-btn" onclick="t1SetPriority(this,'NEXT')">NEXT</button><button class="prio-btn" onclick="t1SetPriority(this,'FUTURE')">FUTURE</button></div></td></tr>
+      <div class="category-header"><span class="category-name">Adoption &amp; Setup</span><span class="category-count">5 features</span></div>
+      <table class="feature-table"><thead><tr><th class="col-feature">Feature</th><th class="col-desc">Description</th><th class="col-mentions">Mentions</th><th class="col-suggested">Suggested</th><th class="col-final">Final Priority</th></tr></thead><tbody>
+
+        <tr data-suggested="NOW" data-final="" data-isnew="false">
+          <td><div class="t1-feature-name">Dedicated margin rules settings page (outside quote flow) <span class="updated-badge">↑ 5 users</span></div></td>
+          <td><div class="t1-feature-desc">Margin rules must live in a standalone settings area. Liam's strongest positive moment in session. Shari currently emails Mat to set up any new rule — the new settings flow is designed to remove this dependency.</div></td>
+          <td><div class="mention-badge">5 users</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td>
+          <td><span class="tag tag-now">NOW</span></td>
+          <td><div class="priority-select"><button class="prio-btn" onclick="t1SetPriority(this,'NOW')">NOW</button><button class="prio-btn" onclick="t1SetPriority(this,'NEXT')">NEXT</button><button class="prio-btn" onclick="t1SetPriority(this,'FUTURE')">FUTURE</button></div></td>
+        </tr>
+
+        <tr data-suggested="NOW" data-final="" data-isnew="false">
+          <td><div class="t1-feature-name">Feature discoverability — insurer rules not known to exist</div></td>
+          <td><div class="t1-feature-desc">Multiple repairers had no idea the rules feature existed; proactive surfacing at onboarding or in the UI is required before adoption can happen.</div></td>
+          <td><div class="mention-badge">3 users</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td>
+          <td><span class="tag tag-now">NOW</span></td>
+          <td><div class="priority-select"><button class="prio-btn" onclick="t1SetPriority(this,'NOW')">NOW</button><button class="prio-btn" onclick="t1SetPriority(this,'NEXT')">NEXT</button><button class="prio-btn" onclick="t1SetPriority(this,'FUTURE')">FUTURE</button></div></td>
+        </tr>
+
+        <tr data-suggested="NOW" data-final="" data-isnew="false">
+          <td><div class="t1-feature-name">'Select All' in onboarding insurer selection step</div></td>
+          <td><div class="t1-feature-desc">Shops with large insurer lists need a Select All option when applying a rule during onboarding — individual selection is tedious and error-prone.</div></td>
+          <td><div class="mention-badge">2 users</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td>
+          <td><span class="tag tag-now">NOW</span></td>
+          <td><div class="priority-select"><button class="prio-btn" onclick="t1SetPriority(this,'NOW')">NOW</button><button class="prio-btn" onclick="t1SetPriority(this,'NEXT')">NEXT</button><button class="prio-btn" onclick="t1SetPriority(this,'FUTURE')">FUTURE</button></div></td>
+        </tr>
+
+        <tr data-suggested="NOW" data-final="" data-isnew="false">
+          <td><div class="t1-feature-name">Role-based access control for margin settings</div></td>
+          <td><div class="t1-feature-desc">Estimators should not be able to access or change admin-level margin configuration; role segmentation is currently insufficient and being exploited.</div></td>
+          <td><div class="mention-badge">1 user</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td>
+          <td><span class="tag tag-now">NOW</span></td>
+          <td><div class="priority-select"><button class="prio-btn" onclick="t1SetPriority(this,'NOW')">NOW</button><button class="prio-btn" onclick="t1SetPriority(this,'NEXT')">NEXT</button><button class="prio-btn" onclick="t1SetPriority(this,'FUTURE')">FUTURE</button></div></td>
+        </tr>
+
+        <tr data-suggested="NEXT" data-final="" data-isnew="false">
+          <td><div class="t1-feature-name">Admin margin settings screen broken for MSO accounts</div></td>
+          <td><div class="t1-feature-desc">The admin screen disappeared after a dashboard update for at least one MSO; self-service rule management is lost and changes require manual support team intervention.</div></td>
+          <td><div class="mention-badge">1 user</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td>
+          <td><span class="tag tag-next">NEXT</span></td>
+          <td><div class="priority-select"><button class="prio-btn" onclick="t1SetPriority(this,'NOW')">NOW</button><button class="prio-btn" onclick="t1SetPriority(this,'NEXT')">NEXT</button><button class="prio-btn" onclick="t1SetPriority(this,'FUTURE')">FUTURE</button></div></td>
+        </tr>
+
       </tbody></table>
     </div>
- 
-    <!-- CATEGORY: Trust & Transparency -->
+
+    <!-- ── TRUST & TRANSPARENCY ── -->
     <div class="category-section" data-category="trust">
-      <div class="category-header">
-        <span class="category-name">Trust &amp; Transparency</span>
-        <span class="category-count">4 features</span>
-      </div>
-      <table class="feature-table"><thead><tr>
-        <th class="col-feature">Feature</th><th class="col-desc">Description</th>
-        <th class="col-mentions">Mentions</th><th class="col-suggested">Suggested</th>
-        <th class="col-final">Final Priority</th>
-      </tr></thead><tbody>
-        <tr data-suggested="NOW" data-final=""><td><div class="t1-feature-name">Compliance behaviour: flag / warn vs. hard block</div></td><td><div class="t1-feature-desc">Repairers strongly prefer "allow but warn / flag non-compliant" over preventing selection; hard blocks remove necessary override capability for legitimate edge cases.</div></td><td><div class="mention-badge">3 users</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td><td><span class="tag tag-now">NOW</span></td><td><div class="priority-select"><button class="prio-btn" onclick="t1SetPriority(this,'NOW')">NOW</button><button class="prio-btn" onclick="t1SetPriority(this,'NEXT')">NEXT</button><button class="prio-btn" onclick="t1SetPriority(this,'FUTURE')">FUTURE</button></div></td></tr>
-        <tr data-suggested="NOW" data-final=""><td><div class="t1-feature-name">Horizontal summary bar with cost, sell, profit &amp; insurer saving</div></td><td><div class="t1-feature-desc">Top-of-screen totals panel showing full margin breakdown per job — strongly preferred over the side panel layout; validates profitability before committing to selections.</div></td><td><div class="mention-badge">4 users</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td><td><span class="tag tag-now">NOW</span></td><td><div class="priority-select"><button class="prio-btn" onclick="t1SetPriority(this,'NOW')">NOW</button><button class="prio-btn" onclick="t1SetPriority(this,'NEXT')">NEXT</button><button class="prio-btn" onclick="t1SetPriority(this,'FUTURE')">FUTURE</button></div></td></tr>
-        <tr data-suggested="NOW" data-final=""><td><div class="t1-feature-name">Part number match indicator clearly visible and labelled</div></td><td><div class="t1-feature-desc">Grey exclamation / green shield icons are misunderstood; need clear labelling or tooltip — long-standing misunderstanding is affecting selection behaviour.</div></td><td><div class="mention-badge">2 users</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td><td><span class="tag tag-now">NOW</span></td><td><div class="priority-select"><button class="prio-btn" onclick="t1SetPriority(this,'NOW')">NOW</button><button class="prio-btn" onclick="t1SetPriority(this,'NEXT')">NEXT</button><button class="prio-btn" onclick="t1SetPriority(this,'FUTURE')">FUTURE</button></div></td></tr>
-        <tr data-suggested="NEXT" data-final=""><td><div class="t1-feature-name">Supplier part data integrity — OEM vs. aftermarket misclassification</div></td><td><div class="t1-feature-desc">Some suppliers mislabel aftermarket parts as OEM; if uncorrected at source, compliance calculations are inaccurate and repairers lose trust in the system.</div></td><td><div class="mention-badge">1 user</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td><td><span class="tag tag-next">NEXT</span></td><td><div class="priority-select"><button class="prio-btn" onclick="t1SetPriority(this,'NOW')">NOW</button><button class="prio-btn" onclick="t1SetPriority(this,'NEXT')">NEXT</button><button class="prio-btn" onclick="t1SetPriority(this,'FUTURE')">FUTURE</button></div></td></tr>
+      <div class="category-header"><span class="category-name">Trust &amp; Transparency</span><span class="category-count">7 features</span></div>
+      <table class="feature-table"><thead><tr><th class="col-feature">Feature</th><th class="col-desc">Description</th><th class="col-mentions">Mentions</th><th class="col-suggested">Suggested</th><th class="col-final">Final Priority</th></tr></thead><tbody>
+
+        <tr data-suggested="NOW" data-final="" data-isnew="false">
+          <td><div class="t1-feature-name">Compliance behaviour: flag / warn vs. hard block <span class="updated-badge">↑ 4 users</span></div></td>
+          <td><div class="t1-feature-desc">Repairers strongly prefer "allow but warn" over preventing selection. Note: Liam flagged the 3-option model (warn/flag/block) may be one too many — the distinction between warn and flag was not clear without explanation.</div></td>
+          <td><div class="mention-badge">4 users</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td>
+          <td><span class="tag tag-now">NOW</span></td>
+          <td><div class="priority-select"><button class="prio-btn" onclick="t1SetPriority(this,'NOW')">NOW</button><button class="prio-btn" onclick="t1SetPriority(this,'NEXT')">NEXT</button><button class="prio-btn" onclick="t1SetPriority(this,'FUTURE')">FUTURE</button></div></td>
+        </tr>
+
+        <tr data-suggested="NOW" data-final="" data-isnew="false">
+          <td><div class="t1-feature-name">Horizontal summary bar with cost, sell, profit &amp; insurer saving <span class="updated-badge">↑ 5 users</span></div></td>
+          <td><div class="t1-feature-desc">Top-of-screen totals panel showing full margin breakdown per job. Liam also confirmed dollar value is preferred over percentage for profit decisions — both should be available.</div></td>
+          <td><div class="mention-badge">5 users</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td>
+          <td><span class="tag tag-now">NOW</span></td>
+          <td><div class="priority-select"><button class="prio-btn" onclick="t1SetPriority(this,'NOW')">NOW</button><button class="prio-btn" onclick="t1SetPriority(this,'NEXT')">NEXT</button><button class="prio-btn" onclick="t1SetPriority(this,'FUTURE')">FUTURE</button></div></td>
+        </tr>
+
+        <tr data-suggested="NOW" data-final="" data-isnew="false">
+          <td><div class="t1-feature-name">Part number match indicator clearly visible and labelled</div></td>
+          <td><div class="t1-feature-desc">Grey exclamation / green shield icons are misunderstood; need clear labelling or tooltip — long-standing misunderstanding is affecting selection behaviour. Shari also confirmed she relies on this to trust parallel pricing.</div></td>
+          <td><div class="mention-badge">3 users</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td>
+          <td><span class="tag tag-now">NOW</span></td>
+          <td><div class="priority-select"><button class="prio-btn" onclick="t1SetPriority(this,'NOW')">NOW</button><button class="prio-btn" onclick="t1SetPriority(this,'NEXT')">NEXT</button><button class="prio-btn" onclick="t1SetPriority(this,'FUTURE')">FUTURE</button></div></td>
+        </tr>
+
+        <tr data-suggested="NOW" data-final="" data-isnew="true" class="row-new">
+          <td><div class="t1-feature-name">"In scope / Out of scope" terminology needs replacing <span class="new-badge">New</span></div></td>
+          <td><div class="t1-feature-desc">Shari didn't understand the term on first view — guessed it related to markups but noted it means something different in a workshop context. Liam confirmed the compliance flag concept needed explanation. Risk of repairers misreading compliance status entirely.</div></td>
+          <td><div class="mention-badge">2 users</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td>
+          <td><span class="tag tag-now">NOW</span></td>
+          <td><div class="priority-select"><button class="prio-btn" onclick="t1SetPriority(this,'NOW')">NOW</button><button class="prio-btn" onclick="t1SetPriority(this,'NEXT')">NEXT</button><button class="prio-btn" onclick="t1SetPriority(this,'FUTURE')">FUTURE</button></div></td>
+        </tr>
+
+        <tr data-suggested="NOW" data-final="" data-isnew="true" class="row-new">
+          <td><div class="t1-feature-name">Agreed supplier discounts visible at grid screen <span class="new-badge">New</span></div></td>
+          <td><div class="t1-feature-desc">Sommerville has negotiated discounts with suppliers tracked on paper cheat sheets. PartsCheck shows markup % on hover, not the discount %. Estimators can't verify at point of selection whether agreed discounts are being honoured. Shari: "Really, really hard to check at a glance."</div></td>
+          <td><div class="mention-badge">1 user</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td>
+          <td><span class="tag tag-next">NEXT</span></td>
+          <td><div class="priority-select"><button class="prio-btn" onclick="t1SetPriority(this,'NOW')">NOW</button><button class="prio-btn" onclick="t1SetPriority(this,'NEXT')">NEXT</button><button class="prio-btn" onclick="t1SetPriority(this,'FUTURE')">FUTURE</button></div></td>
+        </tr>
+
+        <tr data-suggested="NEXT" data-final="" data-isnew="false">
+          <td><div class="t1-feature-name">Supplier part data integrity — OEM vs. aftermarket misclassification</div></td>
+          <td><div class="t1-feature-desc">Some suppliers mislabel aftermarket parts as OEM; if uncorrected at source, compliance calculations are inaccurate and repairers lose trust in the system.</div></td>
+          <td><div class="mention-badge">1 user</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td>
+          <td><span class="tag tag-next">NEXT</span></td>
+          <td><div class="priority-select"><button class="prio-btn" onclick="t1SetPriority(this,'NOW')">NOW</button><button class="prio-btn" onclick="t1SetPriority(this,'NEXT')">NEXT</button><button class="prio-btn" onclick="t1SetPriority(this,'FUTURE')">FUTURE</button></div></td>
+        </tr>
+
+        <tr data-suggested="NEXT" data-final="" data-isnew="true" class="row-new">
+          <td><div class="t1-feature-name">Available prices report — locked snapshot at order time <span class="new-badge">New</span></div></td>
+          <td><div class="t1-feature-desc">Self-assessed repairers (e.g. Montvern/Allianz) order before formal authority and report at invoice time. Late supplier responses distort the report. Liam wants the report timestamped and locked to when orders were placed — so insurers see the pricing landscape at decision time.</div></td>
+          <td><div class="mention-badge">1 user</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td>
+          <td><span class="tag tag-next">NEXT</span></td>
+          <td><div class="priority-select"><button class="prio-btn" onclick="t1SetPriority(this,'NOW')">NOW</button><button class="prio-btn" onclick="t1SetPriority(this,'NEXT')">NEXT</button><button class="prio-btn" onclick="t1SetPriority(this,'FUTURE')">FUTURE</button></div></td>
+        </tr>
+
       </tbody></table>
     </div>
- 
-    <!-- CATEGORY: Operational / Workflow Gaps -->
+
+    <!-- ── OPERATIONAL / WORKFLOW GAPS ── -->
     <div class="category-section" data-category="ops">
-      <div class="category-header">
-        <span class="category-name">Operational / Workflow Gaps</span>
-        <span class="category-count">8 features</span>
-      </div>
-      <table class="feature-table"><thead><tr>
-        <th class="col-feature">Feature</th><th class="col-desc">Description</th>
-        <th class="col-mentions">Mentions</th><th class="col-suggested">Suggested</th>
-        <th class="col-final">Final Priority</th>
-      </tr></thead><tbody>
-        <tr data-suggested="NOW" data-final=""><td><div class="t1-feature-name">Proactive supplier message &amp; backorder notification inbox</div></td><td><div class="t1-feature-desc">Central inbox for supplier messages, backorder alerts, and ETA changes — eliminates manual job-by-job searching; critical at MSO scale (2,000 jobs/day).</div></td><td><div class="mention-badge">2 users</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td><td><span class="tag tag-now">NOW</span></td><td><div class="priority-select"><button class="prio-btn" onclick="t1SetPriority(this,'NOW')">NOW</button><button class="prio-btn" onclick="t1SetPriority(this,'NEXT')">NEXT</button><button class="prio-btn" onclick="t1SetPriority(this,'FUTURE')">FUTURE</button></div></td></tr>
-        <tr data-suggested="NOW" data-final=""><td><div class="t1-feature-name">Supplier notes visible to supplier and acknowledged</div></td><td><div class="t1-feature-desc">Repairers add specific instructions in comments but suppliers aren't reading them — resulting in wrong parts delivered and credits raised; communication channel is broken.</div></td><td><div class="mention-badge">1 user</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td><td><span class="tag tag-now">NOW</span></td><td><div class="priority-select"><button class="prio-btn" onclick="t1SetPriority(this,'NOW')">NOW</button><button class="prio-btn" onclick="t1SetPriority(this,'NEXT')">NEXT</button><button class="prio-btn" onclick="t1SetPriority(this,'FUTURE')">FUTURE</button></div></td></tr>
-        <tr data-suggested="NEXT" data-final=""><td><div class="t1-feature-name">Preferred supplier list manageable outside active quote</div></td><td><div class="t1-feature-desc">Repairers currently must open a live quote to remove a supplier — a dedicated settings page for preferred suppliers needed so they can manage defaults at any time.</div></td><td><div class="mention-badge">1 user</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td><td><span class="tag tag-next">NEXT</span></td><td><div class="priority-select"><button class="prio-btn" onclick="t1SetPriority(this,'NOW')">NOW</button><button class="prio-btn" onclick="t1SetPriority(this,'NEXT')">NEXT</button><button class="prio-btn" onclick="t1SetPriority(this,'FUTURE')">FUTURE</button></div></td></tr>
-        <tr data-suggested="NEXT" data-final=""><td><div class="t1-feature-name">Add non-freight line items when receiving parts</div></td><td><div class="t1-feature-desc">Suppliers add clips/fixings to invoices not in the original order; repairers can only add freight as an extra — creating an invoice reconciliation gap.</div></td><td><div class="mention-badge">1 user</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td><td><span class="tag tag-next">NEXT</span></td><td><div class="priority-select"><button class="prio-btn" onclick="t1SetPriority(this,'NOW')">NOW</button><button class="prio-btn" onclick="t1SetPriority(this,'NEXT')">NEXT</button><button class="prio-btn" onclick="t1SetPriority(this,'FUTURE')">FUTURE</button></div></td></tr>
-        <tr data-suggested="NEXT" data-final=""><td><div class="t1-feature-name">Deep link from DMS / quoting system to PartsCheck job</div></td><td><div class="t1-feature-desc">A single-click button inside the shop's job management system that opens the corresponding PartsCheck job directly — eliminates manual search overhead at 40+ sites.</div></td><td><div class="mention-badge">1 user</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td><td><span class="tag tag-next">NEXT</span></td><td><div class="priority-select"><button class="prio-btn" onclick="t1SetPriority(this,'NOW')">NOW</button><button class="prio-btn" onclick="t1SetPriority(this,'NEXT')">NEXT</button><button class="prio-btn" onclick="t1SetPriority(this,'FUTURE')">FUTURE</button></div></td></tr>
-        <tr data-suggested="NEXT" data-final=""><td><div class="t1-feature-name">FlexiQuote sync speed &amp; merge reliability</div></td><td><div class="t1-feature-desc">Sync from PartsCheck to FlexiQuote can take 30+ seconds or fail — causing double-handling; merge/save also reported as unreliable.</div></td><td><div class="mention-badge">2 users</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td><td><span class="tag tag-next">NEXT</span></td><td><div class="priority-select"><button class="prio-btn" onclick="t1SetPriority(this,'NOW')">NOW</button><button class="prio-btn" onclick="t1SetPriority(this,'NEXT')">NEXT</button><button class="prio-btn" onclick="t1SetPriority(this,'FUTURE')">FUTURE</button></div></td></tr>
-        <tr data-suggested="FUTURE" data-final=""><td><div class="t1-feature-name">Quick Select / Best Profit / Cheapest discoverability</div></td><td><div class="t1-feature-desc">Existing features go unused because repairers don't know they exist — a discoverability and onboarding gap, not a feature gap; tooltips or onboarding callouts needed.</div></td><td><div class="mention-badge">1 user</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td><td><span class="tag tag-future">FUTURE</span></td><td><div class="priority-select"><button class="prio-btn" onclick="t1SetPriority(this,'NOW')">NOW</button><button class="prio-btn" onclick="t1SetPriority(this,'NEXT')">NEXT</button><button class="prio-btn" onclick="t1SetPriority(this,'FUTURE')">FUTURE</button></div></td></tr>
-        <tr data-suggested="FUTURE" data-final=""><td><div class="t1-feature-name">Single-part quote import bug (PartsCheck → Crash Zone)</div></td><td><div class="t1-feature-desc">When a quote has only one part, it fails to import back into Crash Zone — forcing manual entry for all single-part orders and additionals.</div></td><td><div class="mention-badge">1 user</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td><td><span class="tag tag-future">FUTURE</span></td><td><div class="priority-select"><button class="prio-btn" onclick="t1SetPriority(this,'NOW')">NOW</button><button class="prio-btn" onclick="t1SetPriority(this,'NEXT')">NEXT</button><button class="prio-btn" onclick="t1SetPriority(this,'FUTURE')">FUTURE</button></div></td></tr>
+      <div class="category-header"><span class="category-name">Operational / Workflow Gaps</span><span class="category-count">12 features</span></div>
+      <table class="feature-table"><thead><tr><th class="col-feature">Feature</th><th class="col-desc">Description</th><th class="col-mentions">Mentions</th><th class="col-suggested">Suggested</th><th class="col-final">Final Priority</th></tr></thead><tbody>
+
+        <tr data-suggested="NOW" data-final="" data-isnew="true" class="row-new">
+          <td><div class="t1-feature-name">⚠ CRITICAL BUG: Item notes wiped on iBodyshop sync <span class="new-badge">New</span></div></td>
+          <td><div class="t1-feature-desc">Every sync event between PartsCheck and iBodyshop wipes all item-level notes and comments. Happens on order placement AND receipt. Staff must re-enter notes after every sync. Confirmed ongoing as of 11 Mar — screenshots sent to Matt Roggenkamp.</div></td>
+          <td><div class="mention-badge">1 user</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td>
+          <td><span class="tag tag-now">NOW</span></td>
+          <td><div class="priority-select"><button class="prio-btn" onclick="t1SetPriority(this,'NOW')">NOW</button><button class="prio-btn" onclick="t1SetPriority(this,'NEXT')">NEXT</button><button class="prio-btn" onclick="t1SetPriority(this,'FUTURE')">FUTURE</button></div></td>
+        </tr>
+
+        <tr data-suggested="NOW" data-final="" data-isnew="false">
+          <td><div class="t1-feature-name">Proactive supplier message &amp; backorder notification inbox</div></td>
+          <td><div class="t1-feature-desc">Central inbox for supplier messages, backorder alerts, and ETA changes — eliminates manual job-by-job searching; critical at MSO scale (2,000 jobs/day).</div></td>
+          <td><div class="mention-badge">2 users</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td>
+          <td><span class="tag tag-now">NOW</span></td>
+          <td><div class="priority-select"><button class="prio-btn" onclick="t1SetPriority(this,'NOW')">NOW</button><button class="prio-btn" onclick="t1SetPriority(this,'NEXT')">NEXT</button><button class="prio-btn" onclick="t1SetPriority(this,'FUTURE')">FUTURE</button></div></td>
+        </tr>
+
+        <tr data-suggested="NOW" data-final="" data-isnew="false">
+          <td><div class="t1-feature-name">Supplier notes visible to supplier and acknowledged</div></td>
+          <td><div class="t1-feature-desc">Repairers add specific instructions in comments but suppliers aren't reading them — resulting in wrong parts delivered and credits raised.</div></td>
+          <td><div class="mention-badge">1 user</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td>
+          <td><span class="tag tag-now">NOW</span></td>
+          <td><div class="priority-select"><button class="prio-btn" onclick="t1SetPriority(this,'NOW')">NOW</button><button class="prio-btn" onclick="t1SetPriority(this,'NEXT')">NEXT</button><button class="prio-btn" onclick="t1SetPriority(this,'FUTURE')">FUTURE</button></div></td>
+        </tr>
+
+        <tr data-suggested="NEXT" data-final="" data-isnew="true" class="row-new">
+          <td><div class="t1-feature-name">Credits sync between PartsCheck and iBodyshop <span class="new-badge">New</span></div></td>
+          <td><div class="t1-feature-desc">Credits cleared in PartsCheck do not automatically clear in iBodyshop (and vice versa). Staff must reconcile manually in both systems. Shari described it as a persistent high-priority frustration.</div></td>
+          <td><div class="mention-badge">1 user</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td>
+          <td><span class="tag tag-next">NEXT</span></td>
+          <td><div class="priority-select"><button class="prio-btn" onclick="t1SetPriority(this,'NOW')">NOW</button><button class="prio-btn" onclick="t1SetPriority(this,'NEXT')">NEXT</button><button class="prio-btn" onclick="t1SetPriority(this,'FUTURE')">FUTURE</button></div></td>
+        </tr>
+
+        <tr data-suggested="NEXT" data-final="" data-isnew="true" class="row-new">
+          <td><div class="t1-feature-name">Available prices report: no-response vs. no-price distinction <span class="new-badge">New</span></div></td>
+          <td><div class="t1-feature-desc">The report doesn't distinguish between a supplier who hasn't responded yet vs. one who responded with no pricing. Repairers can't tell if a late response came in after they last checked but before printing.</div></td>
+          <td><div class="mention-badge">1 user</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td>
+          <td><span class="tag tag-next">NEXT</span></td>
+          <td><div class="priority-select"><button class="prio-btn" onclick="t1SetPriority(this,'NOW')">NOW</button><button class="prio-btn" onclick="t1SetPriority(this,'NEXT')">NEXT</button><button class="prio-btn" onclick="t1SetPriority(this,'FUTURE')">FUTURE</button></div></td>
+        </tr>
+
+        <tr data-suggested="NEXT" data-final="" data-isnew="true" class="row-new">
+          <td><div class="t1-feature-name">Available prices report: part number match indicator <span class="new-badge">New</span></div></td>
+          <td><div class="t1-feature-desc">The insurer-facing report doesn't flag when a competitor response had an incorrect or missing part number match. Liam takes screenshots of the check price screen to prove why he didn't order from a supplier — a live compliance and defensibility gap.</div></td>
+          <td><div class="mention-badge">1 user</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td>
+          <td><span class="tag tag-next">NEXT</span></td>
+          <td><div class="priority-select"><button class="prio-btn" onclick="t1SetPriority(this,'NOW')">NOW</button><button class="prio-btn" onclick="t1SetPriority(this,'NEXT')">NEXT</button><button class="prio-btn" onclick="t1SetPriority(this,'FUTURE')">FUTURE</button></div></td>
+        </tr>
+
+        <tr data-suggested="NEXT" data-final="" data-isnew="false">
+          <td><div class="t1-feature-name">Preferred supplier list manageable outside active quote</div></td>
+          <td><div class="t1-feature-desc">Repairers currently must open a live quote to remove a supplier — a dedicated settings page for preferred suppliers needed so they can manage defaults at any time.</div></td>
+          <td><div class="mention-badge">1 user</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td>
+          <td><span class="tag tag-next">NEXT</span></td>
+          <td><div class="priority-select"><button class="prio-btn" onclick="t1SetPriority(this,'NOW')">NOW</button><button class="prio-btn" onclick="t1SetPriority(this,'NEXT')">NEXT</button><button class="prio-btn" onclick="t1SetPriority(this,'FUTURE')">FUTURE</button></div></td>
+        </tr>
+
+        <tr data-suggested="NEXT" data-final="" data-isnew="false">
+          <td><div class="t1-feature-name">Add non-freight line items when receiving parts</div></td>
+          <td><div class="t1-feature-desc">Suppliers add clips/fixings to invoices not in the original order; repairers can only add freight as an extra — creating an invoice reconciliation gap.</div></td>
+          <td><div class="mention-badge">1 user</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td>
+          <td><span class="tag tag-next">NEXT</span></td>
+          <td><div class="priority-select"><button class="prio-btn" onclick="t1SetPriority(this,'NOW')">NOW</button><button class="prio-btn" onclick="t1SetPriority(this,'NEXT')">NEXT</button><button class="prio-btn" onclick="t1SetPriority(this,'FUTURE')">FUTURE</button></div></td>
+        </tr>
+
+        <tr data-suggested="NEXT" data-final="" data-isnew="false">
+          <td><div class="t1-feature-name">FlexiQuote sync speed &amp; merge reliability</div></td>
+          <td><div class="t1-feature-desc">Sync from PartsCheck to FlexiQuote can take 30+ seconds or fail — causing double-handling; merge/save also reported as unreliable.</div></td>
+          <td><div class="mention-badge">2 users</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td>
+          <td><span class="tag tag-next">NEXT</span></td>
+          <td><div class="priority-select"><button class="prio-btn" onclick="t1SetPriority(this,'NOW')">NOW</button><button class="prio-btn" onclick="t1SetPriority(this,'NEXT')">NEXT</button><button class="prio-btn" onclick="t1SetPriority(this,'FUTURE')">FUTURE</button></div></td>
+        </tr>
+
+        <tr data-suggested="NEXT" data-final="" data-isnew="false">
+          <td><div class="t1-feature-name">Deep link from DMS / quoting system to PartsCheck job</div></td>
+          <td><div class="t1-feature-desc">A single-click button inside the shop's job management system opens the corresponding PartsCheck job directly — eliminates manual search overhead at 40+ sites.</div></td>
+          <td><div class="mention-badge">1 user</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td>
+          <td><span class="tag tag-next">NEXT</span></td>
+          <td><div class="priority-select"><button class="prio-btn" onclick="t1SetPriority(this,'NOW')">NOW</button><button class="prio-btn" onclick="t1SetPriority(this,'NEXT')">NEXT</button><button class="prio-btn" onclick="t1SetPriority(this,'FUTURE')">FUTURE</button></div></td>
+        </tr>
+
+        <tr data-suggested="FUTURE" data-final="" data-isnew="false">
+          <td><div class="t1-feature-name">Quick Select / Best Profit / Cheapest discoverability</div></td>
+          <td><div class="t1-feature-desc">Existing features go unused because repairers don't know they exist — a discoverability gap, not a feature gap; tooltips or onboarding callouts needed.</div></td>
+          <td><div class="mention-badge">1 user</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td>
+          <td><span class="tag tag-future">FUTURE</span></td>
+          <td><div class="priority-select"><button class="prio-btn" onclick="t1SetPriority(this,'NOW')">NOW</button><button class="prio-btn" onclick="t1SetPriority(this,'NEXT')">NEXT</button><button class="prio-btn" onclick="t1SetPriority(this,'FUTURE')">FUTURE</button></div></td>
+        </tr>
+
+        <tr data-suggested="FUTURE" data-final="" data-isnew="false">
+          <td><div class="t1-feature-name">Single-part quote import bug (PartsCheck → Crash Zone)</div></td>
+          <td><div class="t1-feature-desc">When a quote has only one part, it fails to import back into Crash Zone — forcing manual entry for all single-part orders and additionals.</div></td>
+          <td><div class="mention-badge">1 user</div><div class="mention-dots"><div class="mention-dot filled"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div><div class="mention-dot"></div></div></td>
+          <td><span class="tag tag-future">FUTURE</span></td>
+          <td><div class="priority-select"><button class="prio-btn" onclick="t1SetPriority(this,'NOW')">NOW</button><button class="prio-btn" onclick="t1SetPriority(this,'NEXT')">NEXT</button><button class="prio-btn" onclick="t1SetPriority(this,'FUTURE')">FUTURE</button></div></td>
+        </tr>
+
       </tbody></table>
     </div>
- 
+
   </div><!-- /t1-main -->
 </div><!-- /tab-t1 -->
- 
- 
-<!-- ══════════════════════════════════════════════════
+
+
+<!-- ═══════════════════════════════════════════════════════
      TAB 2: RICE SCORER
-══════════════════════════════════════════════════ -->
+═══════════════════════════════════════════════════════ -->
 <div id="tab-t2" class="tab-panel">
- 
   <div class="legend-bar">
     <span class="legend-title">Scale 1–5</span>
-    <div class="leg"><div class="leg-dot" style="background:var(--now)"></div>Reach: breadth of repairers affected</div>
-    <div class="leg"><div class="leg-dot" style="background:var(--accent)"></div>Impact: workflow improvement per user</div>
-    <div class="leg"><div class="leg-dot" style="background:var(--next)"></div>Confidence: strength of evidence</div>
-    <div class="leg"><div class="leg-dot" style="background:var(--future)"></div>Effort: build complexity (higher = more work)</div>
-    <div class="formula"><strong>RICE</strong> = (Reach × Impact × Confidence) ÷ Effort</div>
+    <div class="leg"><div class="leg-dot" style="background:var(--now)"></div>Reach</div>
+    <div class="leg"><div class="leg-dot" style="background:var(--accent)"></div>Impact</div>
+    <div class="leg"><div class="leg-dot" style="background:var(--next)"></div>Confidence</div>
+    <div class="leg"><div class="leg-dot" style="background:var(--future)"></div>Effort (higher = more work)</div>
+    <div class="formula"><strong>RICE</strong> = (R × I × C) ÷ E</div>
   </div>
- 
   <div class="t2-controls">
     <span class="ctrl-label">Priority:</span>
     <button class="t2-filter-btn active" onclick="t2FilterPri('all',this)">All</button>
     <button class="t2-filter-btn" onclick="t2FilterPri('NOW',this)">NOW</button>
     <button class="t2-filter-btn" onclick="t2FilterPri('NEXT',this)">NEXT</button>
     <button class="t2-filter-btn" onclick="t2FilterPri('FUTURE',this)">FUTURE</button>
+    <button class="t2-filter-btn" onclick="t2FilterPri('newonly',this)" style="border-color:#d8b0e8;color:#7b2d8b">New ✦</button>
     <span class="ctrl-label" style="margin-left:0.75rem">Category:</span>
-    <button class="t2-filter-btn" onclick="t2FilterCat('Availability &amp; Decision Context',this)">Availability</button>
+    <button class="t2-filter-btn" onclick="t2FilterCat('Availability & Decision Context',this)">Availability</button>
     <button class="t2-filter-btn" onclick="t2FilterCat('Automation / Auto-Select',this)">Auto-Select</button>
     <button class="t2-filter-btn" onclick="t2FilterCat('Rule Configuration',this)">Rules</button>
-    <button class="t2-filter-btn" onclick="t2FilterCat('Adoption &amp; Setup',this)">Adoption</button>
-    <button class="t2-filter-btn" onclick="t2FilterCat('Trust &amp; Transparency',this)">Trust</button>
+    <button class="t2-filter-btn" onclick="t2FilterCat('Adoption & Setup',this)">Adoption</button>
+    <button class="t2-filter-btn" onclick="t2FilterCat('Trust & Transparency',this)">Trust</button>
     <button class="t2-filter-btn" onclick="t2FilterCat('Operational / Workflow Gaps',this)">Ops</button>
     <select class="sort-select" id="sortSel" onchange="t2SortBy(this.value)">
       <option value="rice">Sort: RICE Score ↓</option>
@@ -521,24 +653,24 @@ td { padding: 0.85rem 0.75rem; vertical-align: middle; }
       <option value="mentions">Sort: Mentions ↓</option>
     </select>
   </div>
- 
+
   <div class="insights">
-    <div class="insights-title">Top 5 Prioritisation Insights</div>
+    <div class="insights-title">Top Prioritisation Insights — Updated</div>
     <div class="insights-grid">
-      <div class="insight-card"><div class="insight-num">01</div><div class="insight-text"><strong style="color:#f4f1eb">Availability is load-bearing, not a nice-to-have.</strong> 7 of 10 participants raised it unprompted. Auto-select will be distrusted or overridden until stock status and lead times are visible on the grid. It must ship alongside auto-select, not after it.</div></div>
-      <div class="insight-card"><div class="insight-num">02</div><div class="insight-text"><strong style="color:#f4f1eb">List-minus pricing is a silent MSO blocker.</strong> Only 1 mention but outsized revenue impact — MSOs are ~80% of PartsCheck revenue. Allianz mandates list-minus on OEM parts. Without it, auto-select ships broken for the highest-value segment.</div></div>
-      <div class="insight-card"><div class="insight-num">03</div><div class="insight-text"><strong style="color:#f4f1eb">Discoverability is a prerequisite for everything.</strong> 3 repairers had never heard of insurer rules. Feature richness is irrelevant if users don't know the feature exists. Pre-built templates and a standalone settings page unlock adoption.</div></div>
-      <div class="insight-card"><div class="insight-num">04</div><div class="insight-text"><strong style="color:#f4f1eb">"Guide, don't decide" is a design constraint.</strong> Experienced estimators factor in supplier relationships, part re-labelling, and fitment risk — context the system cannot know. Auto-select must be a toggle and a starting point, never a default final state.</div></div>
-      <div class="insight-card"><div class="insight-num">05</div><div class="insight-text"><strong style="color:#f4f1eb">MSO and indie repairer needs diverge sharply.</strong> Basket logic, policy-level rules, RBAC, and approval workflows only matter at MSO scale. Use a segment lens alongside RICE when making final calls.</div></div>
+      <div class="insight-card"><div class="insight-num">01</div><div class="insight-text"><strong style="color:#f4f1eb">Availability now confirmed by 9 of 12 participants.</strong> It is load-bearing for auto-select trust and must ship together — not after. Shari and Liam both independently confirmed stock visibility is a core decision input, not a nice-to-have.</div></div>
+      <div class="insight-card"><div class="insight-num">02</div><div class="insight-text"><strong style="color:#f4f1eb">Terminology is a silent adoption risk.</strong> "In scope / Out of scope" confused 2 users. Pricing % basis (markup vs. of list) confused Shari so much she said she'd "personally hate" the screen. These are NOW fixes — no new development required, just copy.</div></div>
+      <div class="insight-card"><div class="insight-num">03</div><div class="insight-text"><strong style="color:#f4f1eb">The iBodyshop sync bug is a critical blocker.</strong> Notes wiped on every sync event — confirmed, ongoing, screenshots sent. This needs an engineering fix tracked separately from the IRO project, but it will undermine adoption of any note-related features until resolved.</div></div>
+      <div class="insight-card"><div class="insight-num">04</div><div class="insight-text"><strong style="color:#f4f1eb">Auto-select vs. Cheapest distinction not self-evident.</strong> Shari's mental model is "click cheapest, then check stock manually." She directly asked what's different about auto-select. If the UI doesn't answer this without explanation, adoption will stall at the most critical point.</div></div>
+      <div class="insight-card"><div class="insight-num">05</div><div class="insight-text"><strong style="color:#f4f1eb">Allianz combination rules expose a structural gap.</strong> Liam manually evaluates OR/AND pricing logic per job. The rules engine supports a single method only. Until conditional logic is supported, auto-select will make sub-optimal Allianz parallel selections — affecting a key insurer relationship.</div></div>
     </div>
   </div>
- 
+
   <div class="table-wrap">
     <table>
       <thead><tr>
         <th style="width:36px">#</th>
         <th style="min-width:200px">Feature</th>
-        <th style="width:80px">Users<span class="th-hint">unique mentions</span></th>
+        <th style="width:80px">Users<span class="th-hint">mentions</span></th>
         <th class="score-cell" style="width:70px">Reach<span class="th-hint">1–5</span></th>
         <th class="score-cell" style="width:70px">Impact<span class="th-hint">1–5</span></th>
         <th class="score-cell" style="width:70px">Conf.<span class="th-hint">1–5</span></th>
@@ -549,21 +681,15 @@ td { padding: 0.85rem 0.75rem; vertical-align: middle; }
       <tbody id="t2tbody"></tbody>
     </table>
   </div>
- 
 </div><!-- /tab-t2 -->
- 
-<!-- SHARED FOOTER -->
+
 <div class="footer-bar" id="footerBar">
-  <div class="footer-counts" id="footerCounts">
-    <!-- populated by JS -->
-  </div>
-  <button class="export-btn" id="exportBtn" onclick="handleExport()">Export CSV</button>
+  <div class="footer-counts" id="footerCounts"></div>
+  <button class="export-btn" onclick="handleExport()">Export CSV</button>
 </div>
- 
+
 <script>
-// ─────────────────────────────────────────────────────────
-// TAB SWITCHING
-// ─────────────────────────────────────────────────────────
+// ── TAB SWITCHING ─────────────────────────────────────
 let activeTab = 't1';
 function switchTab(tab, btn) {
   activeTab = tab;
@@ -573,32 +699,27 @@ function switchTab(tab, btn) {
   btn.classList.add('active');
   updateFooter();
 }
- 
-// ─────────────────────────────────────────────────────────
-// TAB 1: NOW / NEXT / FUTURE
-// ─────────────────────────────────────────────────────────
+
+// ── TAB 1 ─────────────────────────────────────────────
 let t1ActiveFilter = 'all';
- 
 function t1SetPriority(btn, priority) {
   const row = btn.closest('tr');
   row.querySelectorAll('.prio-btn').forEach(b => b.className = 'prio-btn');
   btn.classList.add('selected-' + priority.toLowerCase());
   row.dataset.final = priority;
-  t1ApplyFilter();
-  updateFooter();
+  t1ApplyFilter(); updateFooter();
 }
- 
 function t1FilterBy(filter, btnEl) {
   t1ActiveFilter = filter;
   document.querySelectorAll('.t1-filter-btn').forEach(b => b.classList.remove('active'));
   btnEl.classList.add('active');
   t1ApplyFilter();
 }
- 
 function t1ApplyFilter() {
   document.querySelectorAll('#t1MainContent tbody tr').forEach(row => {
     let show = true;
     if (t1ActiveFilter === 'unset') show = row.dataset.final === '';
+    else if (t1ActiveFilter === 'new') show = row.dataset.isnew === 'true';
     else if (t1ActiveFilter !== 'all') show = row.dataset.final === t1ActiveFilter;
     row.classList.toggle('t1-hidden', !show);
   });
@@ -607,76 +728,89 @@ function t1ApplyFilter() {
     section.style.display = visible.length === 0 ? 'none' : '';
   });
 }
- 
 function t1ExportCSV() {
-  const lines = ['Feature,Category,Mentions,Suggested Priority,Final Priority'];
+  const lines = ['Feature,Category,Mentions,Suggested Priority,Final Priority,New This Round'];
   document.querySelectorAll('#t1MainContent tbody tr').forEach(row => {
-    const name = row.querySelector('.t1-feature-name').textContent.trim().replace(/,/g,';');
+    const name = row.querySelector('.t1-feature-name').textContent.trim().replace(/New|↑.*users/g,'').replace(/,/g,';').trim();
     const cat = row.closest('.category-section').querySelector('.category-name').textContent.trim();
     const mentions = row.querySelector('.mention-badge').textContent.trim();
     const suggested = row.dataset.suggested;
     const final = row.dataset.final || 'Undecided';
-    lines.push(`"${name}","${cat}","${mentions}","${suggested}","${final}"`);
+    const isnew = row.dataset.isnew === 'true' ? 'Yes' : 'No';
+    lines.push(`"${name}","${cat}","${mentions}","${suggested}","${final}","${isnew}"`);
   });
   dlCSV(lines.join('\n'), 'now_next_future_decisions.csv');
 }
- 
-// ─────────────────────────────────────────────────────────
-// TAB 2: RICE
-// ─────────────────────────────────────────────────────────
+
+// ── TAB 2 RICE DATA ───────────────────────────────────
 const RAW = [
-  {name:"Inline availability & ETA on the grid screen",cat:"Availability & Decision Context",mentions:7,R:5,I:5,C:5,E:3},
-  {name:"Availability factored into auto-select logic",cat:"Availability & Decision Context",mentions:6,R:5,I:5,C:5,E:3},
-  {name:"Supplier comments visible inline under part lines",cat:"Availability & Decision Context",mentions:3,R:4,I:4,C:4,E:2},
-  {name:"Freight costs visible at RFQ time",cat:"Availability & Decision Context",mentions:3,R:4,I:3,C:3,E:3},
-  {name:"Availability status on printed parts report",cat:"Availability & Decision Context",mentions:1,R:2,I:2,C:2,E:2},
-  {name:"Auto-select is optional and easily overridable",cat:"Automation / Auto-Select",mentions:5,R:5,I:5,C:5,E:1},
-  {name:"Auto-select triggers on job load, not just button click",cat:"Automation / Auto-Select",mentions:2,R:4,I:3,C:3,E:2},
-  {name:"Basket-of-goods auto-select logic (not line-by-line)",cat:"Automation / Auto-Select",mentions:2,R:3,I:4,C:3,E:4},
-  {name:"Policy-level rule resolution within an insurer",cat:"Automation / Auto-Select",mentions:1,R:3,I:4,C:2,E:4},
-  {name:"High-value part approval workflow",cat:"Automation / Auto-Select",mentions:2,R:2,I:3,C:2,E:3},
-  {name:"Hide insurer name from suppliers",cat:"Automation / Auto-Select",mentions:1,R:3,I:2,C:2,E:1},
-  {name:"Part-type restrictions configurable per insurer rule",cat:"Rule Configuration",mentions:3,R:4,I:4,C:4,E:3},
-  {name:"List-minus pricing type supported",cat:"Rule Configuration",mentions:1,R:3,I:5,C:4,E:3},
-  {name:"Pre-built insurer rule templates (set and forget)",cat:"Rule Configuration",mentions:4,R:5,I:5,C:4,E:2},
-  {name:"Single global rule option (one rule for all insurers)",cat:"Rule Configuration",mentions:2,R:3,I:3,C:3,E:1},
-  {name:"Per-supplier insurer-name sharing toggle",cat:"Rule Configuration",mentions:1,R:2,I:3,C:2,E:2},
-  {name:"Supplier-level negotiated freight / fee terms config",cat:"Rule Configuration",mentions:1,R:2,I:2,C:1,E:3},
-  {name:"Dedicated margin rules settings page (outside quote flow)",cat:"Adoption & Setup",mentions:4,R:5,I:5,C:5,E:2},
-  {name:"Feature discoverability — insurer rules unknown to most users",cat:"Adoption & Setup",mentions:3,R:5,I:5,C:4,E:1},
-  {name:"'Select All' in onboarding insurer selection step",cat:"Adoption & Setup",mentions:2,R:4,I:3,C:4,E:1},
-  {name:"Role-based access control for margin settings",cat:"Adoption & Setup",mentions:1,R:3,I:3,C:3,E:2},
-  {name:"Admin margin settings screen broken for MSO accounts",cat:"Adoption & Setup",mentions:1,R:3,I:4,C:3,E:2},
-  {name:"Compliance behaviour: flag / warn vs. hard block",cat:"Trust & Transparency",mentions:3,R:5,I:4,C:4,E:1},
-  {name:"Horizontal summary bar with cost, sell, profit & insurer saving",cat:"Trust & Transparency",mentions:4,R:5,I:4,C:5,E:2},
-  {name:"Part number match indicator clearly visible and labelled",cat:"Trust & Transparency",mentions:2,R:4,I:3,C:3,E:1},
-  {name:"Supplier part data integrity — OEM vs. aftermarket misclassification",cat:"Trust & Transparency",mentions:1,R:3,I:4,C:2,E:4},
-  {name:"Proactive supplier message & backorder notification inbox",cat:"Operational / Workflow Gaps",mentions:2,R:4,I:4,C:3,E:4},
-  {name:"Supplier notes visible to supplier and acknowledged",cat:"Operational / Workflow Gaps",mentions:1,R:3,I:3,C:2,E:3},
-  {name:"Preferred supplier list manageable outside active quote",cat:"Operational / Workflow Gaps",mentions:1,R:3,I:3,C:2,E:2},
-  {name:"Add non-freight line items when receiving parts",cat:"Operational / Workflow Gaps",mentions:1,R:2,I:2,C:2,E:2},
-  {name:"Deep link from DMS to PartsCheck job",cat:"Operational / Workflow Gaps",mentions:1,R:2,I:3,C:2,E:3},
-  {name:"FlexiQuote sync speed & merge reliability",cat:"Operational / Workflow Gaps",mentions:2,R:3,I:3,C:3,E:3},
-  {name:"Quick Select / Best Profit / Cheapest discoverability",cat:"Operational / Workflow Gaps",mentions:1,R:3,I:2,C:2,E:1},
-  {name:"Single-part quote import bug (PartsCheck to Crash Zone)",cat:"Operational / Workflow Gaps",mentions:1,R:2,I:2,C:2,E:2},
+  // Availability
+  {name:"Inline availability & ETA on the grid screen",cat:"Availability & Decision Context",mentions:9,R:5,I:5,C:5,E:3,isnew:false},
+  {name:"Availability factored into auto-select logic",cat:"Availability & Decision Context",mentions:6,R:5,I:5,C:5,E:3,isnew:false},
+  {name:"Supplier comments visible inline under part lines",cat:"Availability & Decision Context",mentions:3,R:4,I:4,C:4,E:2,isnew:false},
+  {name:"Delivery cut-off times & AM/PM ETA accuracy",cat:"Availability & Decision Context",mentions:1,R:3,I:3,C:2,E:3,isnew:true},
+  {name:"ETA update capability on overdue orders",cat:"Availability & Decision Context",mentions:1,R:3,I:3,C:2,E:2,isnew:true},
+  {name:"Freight costs visible at RFQ time",cat:"Availability & Decision Context",mentions:3,R:4,I:3,C:3,E:3,isnew:false},
+  {name:"Availability status on printed parts report",cat:"Availability & Decision Context",mentions:1,R:2,I:2,C:2,E:2,isnew:false},
+  // Automation
+  {name:"Auto-select is optional and easily overridable",cat:"Automation / Auto-Select",mentions:5,R:5,I:5,C:5,E:1,isnew:false},
+  {name:"Auto-select triggers on job load, not just button click",cat:"Automation / Auto-Select",mentions:2,R:4,I:3,C:3,E:2,isnew:false},
+  {name:"Auto-select value prop clearly differentiated from Cheapest",cat:"Automation / Auto-Select",mentions:2,R:5,I:4,C:4,E:1,isnew:true},
+  {name:"Basket-of-goods auto-select logic (not line-by-line)",cat:"Automation / Auto-Select",mentions:2,R:3,I:4,C:3,E:4,isnew:false},
+  {name:"Policy-level rule resolution within an insurer",cat:"Automation / Auto-Select",mentions:1,R:3,I:4,C:2,E:4,isnew:false},
+  {name:"High-value part approval workflow",cat:"Automation / Auto-Select",mentions:2,R:2,I:3,C:2,E:3,isnew:false},
+  {name:"Hide insurer name from suppliers",cat:"Automation / Auto-Select",mentions:1,R:3,I:2,C:2,E:1,isnew:false},
+  // Rules
+  {name:"Part-type restrictions configurable per insurer rule",cat:"Rule Configuration",mentions:4,R:4,I:4,C:4,E:3,isnew:false},
+  {name:"List-minus pricing type supported",cat:"Rule Configuration",mentions:1,R:3,I:5,C:4,E:3,isnew:false},
+  {name:"Pre-built insurer rule templates (set and forget)",cat:"Rule Configuration",mentions:4,R:5,I:5,C:4,E:2,isnew:false},
+  {name:"Pricing method % labelling — markup vs. of list",cat:"Rule Configuration",mentions:2,R:5,I:4,C:4,E:1,isnew:true},
+  {name:"Single global rule option (one rule for all insurers)",cat:"Rule Configuration",mentions:2,R:3,I:3,C:3,E:1,isnew:false},
+  {name:"Allianz combination rule logic (OR/AND)",cat:"Rule Configuration",mentions:1,R:2,I:4,C:3,E:4,isnew:true},
+  {name:"Per-supplier insurer-name sharing toggle",cat:"Rule Configuration",mentions:1,R:2,I:3,C:2,E:2,isnew:false},
+  {name:"Custom part number presets in modify button",cat:"Rule Configuration",mentions:1,R:2,I:2,C:2,E:3,isnew:true},
+  {name:"Supplier-level negotiated freight / fee terms config",cat:"Rule Configuration",mentions:1,R:2,I:2,C:1,E:3,isnew:false},
+  // Adoption
+  {name:"Dedicated margin rules settings page (outside quote flow)",cat:"Adoption & Setup",mentions:5,R:5,I:5,C:5,E:2,isnew:false},
+  {name:"Feature discoverability — insurer rules unknown to most users",cat:"Adoption & Setup",mentions:3,R:5,I:5,C:4,E:1,isnew:false},
+  {name:"'Select All' in onboarding insurer selection step",cat:"Adoption & Setup",mentions:2,R:4,I:3,C:4,E:1,isnew:false},
+  {name:"Role-based access control for margin settings",cat:"Adoption & Setup",mentions:1,R:3,I:3,C:3,E:2,isnew:false},
+  {name:"Admin margin settings screen broken for MSO accounts",cat:"Adoption & Setup",mentions:1,R:3,I:4,C:3,E:2,isnew:false},
+  // Trust
+  {name:"Compliance behaviour: flag / warn vs. hard block",cat:"Trust & Transparency",mentions:4,R:5,I:4,C:4,E:1,isnew:false},
+  {name:"Horizontal summary bar (cost, sell, profit, insurer saving)",cat:"Trust & Transparency",mentions:5,R:5,I:4,C:5,E:2,isnew:false},
+  {name:"Part number match indicator clearly visible and labelled",cat:"Trust & Transparency",mentions:3,R:4,I:3,C:3,E:1,isnew:false},
+  {name:"'In scope / Out of scope' terminology needs replacing",cat:"Trust & Transparency",mentions:2,R:5,I:4,C:4,E:1,isnew:true},
+  {name:"Agreed supplier discounts visible at grid screen",cat:"Trust & Transparency",mentions:1,R:3,I:3,C:2,E:3,isnew:true},
+  {name:"Supplier part data integrity — OEM vs. aftermarket misclassification",cat:"Trust & Transparency",mentions:1,R:3,I:4,C:2,E:4,isnew:false},
+  {name:"Available prices report — locked snapshot at order time",cat:"Trust & Transparency",mentions:1,R:2,I:3,C:2,E:3,isnew:true},
+  // Ops
+  {name:"CRITICAL BUG: Item notes wiped on iBodyshop sync",cat:"Operational / Workflow Gaps",mentions:1,R:4,I:5,C:5,E:2,isnew:true},
+  {name:"Proactive supplier message & backorder notification inbox",cat:"Operational / Workflow Gaps",mentions:2,R:4,I:4,C:3,E:4,isnew:false},
+  {name:"Supplier notes visible to supplier and acknowledged",cat:"Operational / Workflow Gaps",mentions:1,R:3,I:3,C:2,E:3,isnew:false},
+  {name:"Credits sync between PartsCheck and iBodyshop",cat:"Operational / Workflow Gaps",mentions:1,R:3,I:3,C:3,E:3,isnew:true},
+  {name:"Available prices report: no-response vs. no-price distinction",cat:"Operational / Workflow Gaps",mentions:1,R:3,I:2,C:2,E:2,isnew:true},
+  {name:"Available prices report: part number match indicator",cat:"Operational / Workflow Gaps",mentions:1,R:3,I:3,C:3,E:2,isnew:true},
+  {name:"Preferred supplier list manageable outside active quote",cat:"Operational / Workflow Gaps",mentions:1,R:3,I:3,C:2,E:2,isnew:false},
+  {name:"Add non-freight line items when receiving parts",cat:"Operational / Workflow Gaps",mentions:1,R:2,I:2,C:2,E:2,isnew:false},
+  {name:"FlexiQuote sync speed & merge reliability",cat:"Operational / Workflow Gaps",mentions:2,R:3,I:3,C:3,E:3,isnew:false},
+  {name:"Deep link from DMS to PartsCheck job",cat:"Operational / Workflow Gaps",mentions:1,R:2,I:3,C:2,E:3,isnew:false},
+  {name:"Quick Select / Best Profit / Cheapest discoverability",cat:"Operational / Workflow Gaps",mentions:1,R:3,I:2,C:2,E:1,isnew:false},
+  {name:"Single-part quote import bug (PartsCheck to Crash Zone)",cat:"Operational / Workflow Gaps",mentions:1,R:2,I:2,C:2,E:2,isnew:false},
 ];
- 
+
 let t2data = RAW.map((f,i) => ({...f, id:i}));
 let t2priFilter = 'all', t2catFilter = null, t2sortKey = 'rice';
- 
+
 const CAT_COL = {
-  "Availability & Decision Context":"#1a6b3c",
-  "Automation / Auto-Select":"#c84b2f",
-  "Rule Configuration":"#9b5500",
-  "Adoption & Setup":"#2a4f8a",
-  "Trust & Transparency":"#6b3a8a",
-  "Operational / Workflow Gaps":"#4a5568",
+  "Availability & Decision Context":"#1a6b3c","Automation / Auto-Select":"#c84b2f",
+  "Rule Configuration":"#9b5500","Adoption & Setup":"#2a4f8a",
+  "Trust & Transparency":"#6b3a8a","Operational / Workflow Gaps":"#4a5568",
 };
- 
 function riceScore(f){ return +((f.R*f.I*f.C)/f.E).toFixed(1); }
 function ricePri(s){ return s>=20?'NOW':s>=10?'NEXT':'FUTURE'; }
 function riceCol(s){ return s>=20?'#1a6b3c':s>=10?'#9b5500':'#2a4f8a'; }
- 
+
 function t2Render(){
   const tbody = document.getElementById('t2tbody');
   const scored = t2data.map(f=>({...f,_r:riceScore(f)}));
@@ -687,20 +821,22 @@ function t2Render(){
   else if(t2sortKey==='confidence') scored.sort((a,b)=>b.C-a.C);
   else if(t2sortKey==='effort_asc') scored.sort((a,b)=>a.E-b.E);
   else if(t2sortKey==='mentions') scored.sort((a,b)=>b.mentions-a.mentions);
- 
+
   tbody.innerHTML = '';
   let rank=0, all=[], now=0, next=0, future=0;
   scored.forEach(f=>{
     const pri = ricePri(f._r);
-    const show = (t2priFilter==='all'||pri===t2priFilter)&&(!t2catFilter||f.cat===t2catFilter);
+    const show = (t2priFilter==='all'||pri===t2priFilter||( t2priFilter==='newonly'&&f.isnew))&&(!t2catFilter||f.cat===t2catFilter);
     if(show){rank++;all.push(f._r);if(pri==='NOW')now++;else if(pri==='NEXT')next++;else future++;}
     const barW = Math.round((f._r/max)*100);
     const rc = rank===1?'r1':rank===2?'r2':rank===3?'r3':'';
+    const newMark = f.isnew ? '<span style="font-size:0.55rem;background:#f0e0f5;color:#7b2d8b;padding:0.1rem 0.35rem;border-radius:2px;border:1px solid #d8b0e8;margin-left:0.3rem;vertical-align:middle">New</span>' : '';
     const tr = document.createElement('tr');
     if(!show) tr.classList.add('t2-hidden');
+    if(f.isnew) tr.classList.add('t2-new-row');
     tr.innerHTML = `
       <td><div class="rank-num ${show?rc:''}">${show?rank:'—'}</div></td>
-      <td><div class="t2-feature-name">${f.name}</div><div class="feature-cat" style="color:${CAT_COL[f.cat]||'#666'}">${f.cat}</div></td>
+      <td><div class="t2-feature-name">${f.name}${newMark}</div><div class="feature-cat" style="color:${CAT_COL[f.cat]||'#666'}">${f.cat}</div></td>
       <td class="mentions-cell"><span class="mentions-num">${f.mentions}</span> user${f.mentions!==1?'s':''}</td>
       <td class="score-cell"><input class="score-input" type="number" min="1" max="5" step="1" value="${f.R}" data-id="${f.id}" data-field="R" onchange="t2Update(this)"><div class="score-hint">Reach</div></td>
       <td class="score-cell"><input class="score-input" type="number" min="1" max="5" step="1" value="${f.I}" data-id="${f.id}" data-field="I" onchange="t2Update(this)"><div class="score-hint">Impact</div></td>
@@ -712,7 +848,7 @@ function t2Render(){
   });
   if(activeTab==='t2') updateFooter();
 }
- 
+
 function t2Update(input){
   const id=+input.dataset.id, field=input.dataset.field;
   const val=Math.min(5,Math.max(1,parseInt(input.value)||1));
@@ -730,48 +866,37 @@ function t2FilterCat(cat,btn){
 }
 function t2SortBy(key){ t2sortKey=key; t2Render(); }
 function t2ExportCSV(){
-  const rows=['Feature,Category,Mentions,Reach,Impact,Confidence,Effort,RICE Score,Priority'];
-  t2data.forEach(f=>{const r=riceScore(f);rows.push(`"${f.name}","${f.cat}",${f.mentions},${f.R},${f.I},${f.C},${f.E},${r},${ricePri(r)}`);});
+  const rows=['Feature,Category,Mentions,Reach,Impact,Confidence,Effort,RICE Score,Priority,New This Round'];
+  t2data.forEach(f=>{const r=riceScore(f);rows.push(`"${f.name}","${f.cat}",${f.mentions},${f.R},${f.I},${f.C},${f.E},${r},${ricePri(r)},${f.isnew?'Yes':'No'}`);});
   dlCSV(rows.join('\n'),'rice_scores_insurer_rules_overlay.csv');
 }
- 
-// ─────────────────────────────────────────────────────────
-// SHARED FOOTER
-// ─────────────────────────────────────────────────────────
+
+// ── SHARED FOOTER ─────────────────────────────────────
 function updateFooter(){
   const fc = document.getElementById('footerCounts');
   if(activeTab==='t1'){
     const rows = document.querySelectorAll('#t1MainContent tbody tr');
-    let now=0,next=0,future=0,unset=0;
+    let now=0,next=0,future=0,unset=0,newcount=0;
     rows.forEach(r=>{
       const f=r.dataset.final;
       if(f==='NOW')now++;else if(f==='NEXT')next++;else if(f==='FUTURE')future++;else unset++;
+      if(r.dataset.isnew==='true') newcount++;
     });
-    fc.innerHTML=`<div class="fc">NOW: <span>${now}</span></div><div class="fc">NEXT: <span>${next}</span></div><div class="fc">FUTURE: <span>${future}</span></div><div class="fc">Undecided: <span>${unset}</span></div>`;
+    fc.innerHTML=`<div class="fc">NOW: <span>${now}</span></div><div class="fc">NEXT: <span>${next}</span></div><div class="fc">FUTURE: <span>${future}</span></div><div class="fc">Undecided: <span>${unset}</span></div><div class="fc" style="color:#d8b0e8">New features: <span style="color:#f4f1eb">${newcount}</span></div>`;
   } else {
-    const scored = t2data.map(f=>riceScore(f));
-    const now=scored.filter(s=>s>=20).length, next=scored.filter(s=>s>=10&&s<20).length, future=scored.filter(s=>s<10).length;
+    const scored=t2data.map(f=>riceScore(f));
+    const now=scored.filter(s=>s>=20).length,next=scored.filter(s=>s>=10&&s<20).length,future=scored.filter(s=>s<10).length;
     const avg=(scored.reduce((a,b)=>a+b,0)/scored.length).toFixed(1);
-    const s=[...scored].sort((a,b)=>a-b), m=Math.floor(s.length/2);
+    const s=[...scored].sort((a,b)=>a-b),m=Math.floor(s.length/2);
     const med=s.length%2?s[m]:((s[m-1]+s[m])/2).toFixed(1);
-    fc.innerHTML=`<div class="fc">NOW: <span>${now}</span></div><div class="fc">NEXT: <span>${next}</span></div><div class="fc">FUTURE: <span>${future}</span></div><div class="fc">Avg RICE: <span>${avg}</span></div><div class="fc">Median: <span>${med}</span></div>`;
+    const newcount=t2data.filter(f=>f.isnew).length;
+    fc.innerHTML=`<div class="fc">NOW: <span>${now}</span></div><div class="fc">NEXT: <span>${next}</span></div><div class="fc">FUTURE: <span>${future}</span></div><div class="fc">Avg RICE: <span>${avg}</span></div><div class="fc">Median: <span>${med}</span></div><div class="fc" style="color:#d8b0e8">New: <span style="color:#f4f1eb">${newcount}</span></div>`;
   }
 }
- 
-function handleExport(){
-  if(activeTab==='t1') t1ExportCSV(); else t2ExportCSV();
-}
- 
-function dlCSV(content, filename){
-  const blob=new Blob([content],{type:'text/csv'});
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(blob);
-  a.download=filename; a.click();
-}
- 
-// ─── INIT ───
-t2Render();
-updateFooter();
+function handleExport(){ if(activeTab==='t1') t1ExportCSV(); else t2ExportCSV(); }
+function dlCSV(content,filename){ const blob=new Blob([content],{type:'text/csv'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=filename; a.click(); }
+
+t2Render(); updateFooter();
 </script>
 </body>
 </html>
