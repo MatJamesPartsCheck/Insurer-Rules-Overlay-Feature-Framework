@@ -227,6 +227,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
       <div class="mpct" id="match-pct" style="color:#111">0%</div>
       <div class="msub" id="match-sub">0 of 6 rules met</div>
     </div>
+    <div class="mw">
+      <div class="mlbl">Job Saving</div>
+      <div style="font-size:16px;font-weight:700;line-height:1;margin-top:2px" id="job-saving" style="color:#111">$0.00</div>
+      <div class="msub" id="job-saving-sub">vs dealer list</div>
+    </div>
   </div>
   <div class="tbar">
     <div class="sc"><b id="sel-count">0</b>/6 Selected</div>
@@ -384,7 +389,7 @@ function render(){
       }
       if(isSel){var en=p.name.replace(/'/g,"\\'"),es=opt.supplier.replace(/'/g,"\\'"),ep=opt.pno.replace(/'/g,"\\'");h+='<div class="selbar'+(!opt.inScope?' red':'')+'"><span class="sblbl">&#10003; SELECTED</span><button class="sbedit" onclick="event.stopPropagation();openModal(\''+en+'\',\''+es+'\',\''+ep+'\')">&#9998; Edit</button></div>';}
       var disc=(opt.type==='OEM'&&p.list>0)?((p.list-opt.cost)/p.list*100).toFixed(1)+'%':'';
-      h+='<div class="tt"><div class="tth">'+opt.supplier+'</div><div class="ttr"><span class="ttl">Supplier Part No.</span><span class="ttv">'+opt.pno+'</span></div><div class="ttr"><span class="ttl">Modified Part No.</span><span class="ttv">'+opt.mno+'</span></div><div class="ttr"><span class="ttl">Part Type</span><span class="ttv">'+opt.type+'</span></div><div class="ttr"><span class="ttl">Cost</span><span class="ttv">'+fmt(opt.cost)+'</span></div>'+(disc?'<div class="ttr"><span class="ttl">Supplier Discount</span><span class="ttv amb">'+disc+'</span></div>':'')+'<div class="ttr"><span class="ttl">Mark Up</span><span class="ttv amb">'+mu+'</span></div><div class="ttr"><span class="ttl">Sell Price</span><span class="ttv">'+fmt(opt.sell)+'</span></div><div class="ttr"><span class="ttl">Profit</span><span class="ttv grn">$'+pr+'</span></div><div class="ttr"><span class="ttl">Rule Limit</span><span class="ttv">'+opt.rule+'</span></div>'+(opt.cmt?'<div class="ttcmt">'+opt.cmt+'</div>':'')+'</div></td>';
+      h+='<div class="tt"><div class="tth">'+opt.supplier+'</div><div class="ttr"><span class="ttl">Supplier Part No.</span><span class="ttv">'+opt.pno+'</span></div><div class="ttr"><span class="ttl">Modified Part No.</span><span class="ttv">'+opt.mno+'</span></div><div class="ttr"><span class="ttl">Part Type</span><span class="ttv">'+opt.type+'</span></div><div class="ttr"><span class="ttl">Cost</span><span class="ttv">'+fmt(opt.cost)+'</span></div>'+(disc?'<div class="ttr"><span class="ttl">Supplier Discount</span><span class="ttv '+(parseFloat(disc)<25?'amb':'')+'">'+disc+(parseFloat(disc)<25?' ⚠':'')+'</span></div>':'')+'<div class="ttr"><span class="ttl">Mark Up</span><span class="ttv">'+mu+'</span></div><div class="ttr"><span class="ttl">Sell Price</span><span class="ttv">'+fmt(opt.sell)+'</span></div><div class="ttr"><span class="ttl">Profit</span><span class="ttv grn">$'+pr+'</span></div><div class="ttr"><span class="ttl">Rule Limit</span><span class="ttv">'+opt.rule+'</span></div>'+(opt.cmt?'<div class="ttcmt">'+opt.cmt+'</div>':'')+'</div></td>';
     }
     h+='</tr>';
   }
@@ -415,6 +420,9 @@ function updateTotals(){
     if(tcd)tcd.textContent=totalDlv>0?fmt(totalDlv)+' included':'None on selection';
     if(tsv)tsv.textContent=sellDir;
     if(tss)tss.textContent=sellSaving>0?fmt(sellSaving)+' vs dealer list':'—';
+  var js=document.getElementById('job-saving'),jss=document.getElementById('job-saving-sub');
+  if(js){js.textContent=sc>0&&sellSaving>0?fmt(sellSaving):'$0.00';js.style.color=sc>0&&sellSaving>0?'#16a34a':'#111';}
+  if(jss){jss.textContent=sc>0&&sellSaving>0?'saved vs dealer list':'vs dealer list';}
     if(tpp)tpp.textContent=mp.toFixed(1)+'% — '+(mp>=20?'strong':mp>=10?'moderate':'low')+' margin';
   }
   var dbw=document.getElementById('deal-wrap'),ds=document.getElementById('deal-sub');
