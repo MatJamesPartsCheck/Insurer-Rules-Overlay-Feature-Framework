@@ -157,6 +157,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
 .srn-yes:hover{background:#15803d}
 .srn-no{background:none;border:none;color:#6b7280;font-size:11px;cursor:pointer;padding:5px 8px;font-weight:600}
 .srn-no:hover{color:#374151}
+.md-step{display:none}.md-step.active{display:block}
+.modal-back{background:none;border:none;color:#6b7280;font-size:12px;cursor:pointer;padding:0;display:flex;align-items:center;gap:4px}
+.modal-back:hover{color:#111}
+.mrule-row{display:flex;flex-direction:column;gap:4px;margin-bottom:12px}
+.mrule-lbl{font-size:11px;font-weight:600;color:#374151}
+.mrule-val{font-size:13px;font-weight:700;color:#111;background:#f9fafb;border:1px solid #e5e7eb;border-radius:4px;padding:7px 10px}
 .embp{background:#22c55e;color:white;border-color:#16a34a}
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#1a1a2e;color:white;padding:12px 24px;border-radius:8px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px;opacity:0;transition:all .4s;z-index:999;box-shadow:0 8px 24px rgba(0,0,0,.3)}
 .toast.show{transform:translateX(-50%) translateY(0);opacity:1}
@@ -214,24 +220,21 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
     </div>
   </div>
   <div class="sb">
-    <div class="si"><div class="sihov"><div class="slbl">Your Cost</div><div class="sv" id="s-cost">$0.00</div><div class="sitip" id="tip-cost"><div class="sitip-row"><span class="sitip-l">What this is</span><span class="sitip-v">Total supplier cost across selected parts</span></div><div class="sitip-row"><span class="sitip-l">Dealer List Total</span><span class="sitip-v" id="tip-cost-list">—</span></div><div class="sitip-row"><span class="sitip-l">vs Dealer List</span><span class="sitip-v" id="tip-cost-vs">—</span></div><div class="sitip-row"><span class="sitip-l">Incl. delivery</span><span class="sitip-v" id="tip-cost-dlv">—</span></div><div class="sitip-note">Lower cost vs list reflects better sourcing efficiency.</div></div></div></div>
-    <div class="si"><div class="sihov"><div class="slbl">Your Sell</div><div class="sv" id="s-sell">$0.00</div><div class="sitip" id="tip-sell"><div class="sitip-row"><span class="sitip-l">What this is</span><span class="sitip-v">Total amount charged to insurer</span></div><div class="sitip-row"><span class="sitip-l">Dealer List Total</span><span class="sitip-v" id="tip-sell-list">—</span></div><div class="sitip-row"><span class="sitip-l">vs Dealer List</span><span class="sitip-v" id="tip-sell-vs">—</span></div><div class="sitip-row"><span class="sitip-l">Insurer saving</span><span class="sitip-v" id="tip-sell-sav">—</span></div><div class="sitip-note">A lower sell vs dealer list is favourable to insurer perception.</div></div></div></div>
+    <div class="si"><div class="sihov"><div class="slbl">Your Cost</div><div class="sv" id="s-cost">$0.00</div><div class="sitip" id="tip-cost"><div class="sitip-row"><span class="sitip-l">What this is</span><span class="sitip-v">Total supplier cost across selected parts</span></div><div class="sitip-row"><span class="sitip-l">List Total</span><span class="sitip-v" id="tip-cost-list">—</span></div><div class="sitip-row"><span class="sitip-l">vs List</span><span class="sitip-v" id="tip-cost-vs">—</span></div><div class="sitip-row"><span class="sitip-l">Incl. delivery</span><span class="sitip-v" id="tip-cost-dlv">—</span></div><div class="sitip-note">Lower cost vs list reflects better sourcing efficiency.</div></div></div></div>
+    <div class="si"><div class="sihov"><div class="slbl">Your Sell</div><div class="sv" id="s-sell">$0.00</div><div class="sitip" id="tip-sell"><div class="sitip-row"><span class="sitip-l">What this is</span><span class="sitip-v">Total amount charged to insurer</span></div><div class="sitip-row"><span class="sitip-l">List Total</span><span class="sitip-v" id="tip-sell-list">—</span></div><div class="sitip-row"><span class="sitip-l">vs List</span><span class="sitip-v" id="tip-sell-vs">—</span></div><div class="sitip-row"><span class="sitip-l">Insurer saving</span><span class="sitip-v" id="tip-sell-sav">—</span></div><div class="sitip-note">A lower sell vs dealer list is favourable to insurer perception.</div></div></div></div>
     <div class="si"><div class="sihov"><div class="slbl">Your Profit</div><div class="sv grn" id="s-profit">$0.00</div><div class="sitip" id="tip-profit"><div class="sitip-row"><span class="sitip-l">What this is</span><span class="sitip-v">Sell minus total supplier cost</span></div><div class="sitip-row"><span class="sitip-l">Margin %</span><span class="sitip-v" id="tip-profit-pct">—</span></div><div class="sitip-note">Profit margin = (Sell − Cost) ÷ Sell. Higher % means better return per dollar billed.</div></div></div></div>
     <div class="si" style="min-width:150px">
       <div class="slbl">Deal Status</div>
       <div style="margin-top:6px" id="deal-wrap"><span class="dbd" style="background:#f1f5f9;color:#64748b">Nothing Selected</span></div>
       <div id="deal-sub" style="font-size:10px;color:#6b7280;margin-top:3px">Click Auto Select for best match</div>
     </div>
+
     <div class="mw">
       <div class="mlbl">Allianz Match</div>
       <div class="mpct" id="match-pct" style="color:#111">0%</div>
       <div class="msub" id="match-sub">0 of 6 rules met</div>
     </div>
-    <div class="mw">
-      <div class="mlbl">Job Saving</div>
-      <div style="font-size:16px;font-weight:700;line-height:1;margin-top:2px" id="job-saving" style="color:#111">$0.00</div>
-      <div class="msub" id="job-saving-sub">vs dealer list</div>
-    </div>
+
   </div>
   <div class="tbar">
     <div class="sc"><b id="sel-count">0</b>/6 Selected</div>
@@ -256,12 +259,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
     <table class="pt">
       <thead>
         <tr>
-          <th style="width:190px">Part &amp; Description</th>
-          <th>S2 &mdash; OEM Direct</th><th>S1 &mdash; Parts Network</th>
-          <th>S4 &mdash; Eco Parts</th><th>S5 &mdash; Reco Centre</th><th>S3 &mdash; Parallel Import</th>
+          <th style="width:190px">Part &amp; Description<div id="list-tot-label" style="font-size:10px;font-weight:700;color:#111;margin-top:3px;letter-spacing:0">List total: —</div></th>
+          <th>S2 &mdash; OEM Direct<div id="tot-s2-lbl" style="font-size:10px;font-weight:700;color:#111;margin-top:3px;letter-spacing:0">—</div></th>
+          <th>S1 &mdash; Parts Network<div id="tot-s1-lbl" style="font-size:10px;font-weight:700;color:#111;margin-top:3px;letter-spacing:0">—</div></th>
+          <th>S4 &mdash; Eco Parts<div id="tot-s4-lbl" style="font-size:10px;font-weight:700;color:#111;margin-top:3px;letter-spacing:0">—</div></th>
+          <th>S5 &mdash; Reco Centre<div id="tot-s5-lbl" style="font-size:10px;font-weight:700;color:#111;margin-top:3px;letter-spacing:0">—</div></th>
+          <th>S3 &mdash; Parallel Import<div id="tot-s3-lbl" style="font-size:10px;font-weight:700;color:#111;margin-top:3px;letter-spacing:0">—</div></th>
         </tr>
       </thead>
-      <tbody id="tbody"></tbody>
+      <tbody id="tbody">
+
+      </tbody>
+
     </table>
   </div>
 </div>
@@ -275,6 +284,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
       <button class="mhx" onclick="closeModal()">&#10005;</button>
     </div>
     <div class="emb">
+      <div class="md-step active" id="modal-step-1">
       <div class="ems">
         <div class="emst">Modify Part Number</div>
         <div class="efg"><label class="efl">Part Number Type</label>
@@ -312,10 +322,55 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
           </div>
         </div>
       </div>
+      </div><!-- end step 1 -->
+
+      <div class="md-step" id="modal-step-2">
+        <div style="padding:4px 0 16px">
+          <button class="modal-back" onclick="goModalStep(1)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+            Back to edit
+          </button>
+        </div>
+        <div class="ems">
+          <div class="emst">Save as Rule</div>
+          <div class="mrule-row">
+            <span class="mrule-lbl">Pricing method (pre-filled)</span>
+            <div class="mrule-val" id="rule-method-preview">—</div>
+          </div>
+          <div class="mrule-row">
+            <label class="efl">Rule Name</label>
+            <input class="efin" id="rule-name-input" type="text" placeholder="e.g. Allianz OEM adjustment">
+          </div>
+          <div class="mrule-row">
+            <label class="efl">Insurer</label>
+            <select class="efsel" id="rule-insurer-input">
+              <option value="">Select insurer...</option>
+              <option>NRMA Insurance</option><option>AAMI</option><option selected>Allianz</option>
+              <option>Budget Direct</option><option>IAG / CGU</option><option>Suncorp</option>
+              <option>QBE</option><option>GIO</option><option>Youi</option><option>Bingle</option>
+            </select>
+          </div>
+          <div class="mrule-row">
+            <label class="efl">Part Type</label>
+            <select class="efsel" id="rule-parttype-input">
+              <option value="">All part types</option>
+              <option>OEM</option><option>Aftermarket</option><option>Reconditioned</option><option>Used / Parallel</option>
+            </select>
+          </div>
+          <div id="rule-save-feedback" style="display:none;margin-top:8px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:4px;padding:8px 12px;font-size:11px;color:#166534;font-weight:600">
+            ✓ Rule saved to Margin Settings
+          </div>
+        </div>
+      </div><!-- end step 2 -->
+
     </div>
-    <div class="emf">
+    <div class="emf" id="modal-footer-1">
       <button class="embn" onclick="closeModal()">Reset</button>
       <button class="embn embp" onclick="handleSaveChanges()">Save Changes</button>
+    </div>
+    <div class="emf" id="modal-footer-2" style="display:none">
+      <button class="embn" onclick="goModalStep(1)">Cancel</button>
+      <button class="embn embp" id="rule-save-btn" onclick="commitSaveAsRule()">Save Rule</button>
     </div>
   </div>
 </div>
@@ -370,15 +425,13 @@ function render(){
       for(var k=0;k<p.opts.length;k++){if(p.opts[k].sid===sid){opt=p.opts[k];break;}}
       if(!opt){h+='<td class="ec"></td>';continue;}
       var isSel=(ss===sid),mu=((opt.sell-opt.cost)/opt.cost*100).toFixed(1)+'%',pr=(opt.sell-opt.cost).toFixed(2);
-      var tc=TC[opt.type]||'toem',fl=!opt.inScope?'cfr':opt.best?'cfg':'';
+      var tc=TC[opt.type]||'toem',fl=opt.best&&opt.inScope?'cfg':'';
       var cc='oc ttw'+(isSel?' sel':'')+(!opt.inScope?' oos':'');
       h+='<td class="'+cc+'" onclick="toggle(\''+p.id+'\',\''+sid+'\')">';
       if(fl){
         if(fl==='cfg'){
           var matchTip='Part No. '+opt.pno+' matches dealer number';
           h+='<div class="cfw"><div class="cf cfg"></div><span class="cftick">&#10003;</span><div class="cftip">'+matchTip+'</div></div>';
-        } else {
-          h+='<div class="cfw"><div class="cf cfr"></div></div>';
         }
       }
       h+='<div class="oty '+tc+'" style="display:flex;align-items:center;gap:4px">'+opt.label+(opt.cmt?'<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="opacity:0.6;flex-shrink:0"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>':'')+'</div><div class="opr'+(opt.inScope?'':' oop')+'">'+fmt(opt.sell)+'</div>'+(opt.delivery?'<div class="odlv">+ $'+opt.delivery+' delivery</div>':'');
@@ -403,6 +456,25 @@ function updateTotals(){
   document.getElementById('s-cost').textContent=fmt(ct);document.getElementById('s-sell').textContent=fmt(st);document.getElementById('s-profit').textContent=fmt(pv);
   document.getElementById('sel-count').textContent=sc;document.getElementById('match-pct').textContent=pct+'%';document.getElementById('match-pct').style.color=pcol;document.getElementById('match-sub').textContent=matched+' of '+total+' rules met';
   var totalList=0;for(var tl=0;tl<PARTS.length;tl++)totalList+=PARTS[tl].list;
+  // Supplier totals in header
+  var sOrder=['s2','s1','s4','s5','s3'];
+  var stotals={};
+  for(var si2=0;si2<PARTS.length;si2++){
+    var sp2=PARTS[si2];
+    for(var sj2=0;sj2<sp2.opts.length;sj2++){
+      var sopt2=sp2.opts[sj2];
+      var k2=sopt2.sid;
+      if(!stotals[k2]) stotals[k2]={sell:0};
+      stotals[k2].sell+=sopt2.sell;
+    }
+  }
+  var ltlEl=document.getElementById('list-tot-label');
+  if(ltlEl) ltlEl.textContent='List total: '+fmt(totalList);
+  for(var sk2=0;sk2<sOrder.length;sk2++){
+    var scol=sOrder[sk2];
+    var tlbl=document.getElementById('tot-'+scol+'-lbl');
+    if(tlbl) tlbl.textContent=stotals[scol]?fmt(stotals[scol].sell):'—';
+  }
   // Tooltip values
   var tcv=document.getElementById('tip-cost-vs'),tcd=document.getElementById('tip-cost-dlv'),tsv=document.getElementById('tip-sell-vs'),tss=document.getElementById('tip-sell-sav'),tpp=document.getElementById('tip-profit-pct'),tcl=document.getElementById('tip-cost-list'),tsl=document.getElementById('tip-sell-list');
   if(sc===0){
@@ -420,9 +492,7 @@ function updateTotals(){
     if(tcd)tcd.textContent=totalDlv>0?fmt(totalDlv)+' included':'None on selection';
     if(tsv)tsv.textContent=sellDir;
     if(tss)tss.textContent=sellSaving>0?fmt(sellSaving)+' vs dealer list':'—';
-  var js=document.getElementById('job-saving'),jss=document.getElementById('job-saving-sub');
-  if(js){js.textContent=sc>0&&sellSaving>0?fmt(sellSaving):'$0.00';js.style.color=sc>0&&sellSaving>0?'#16a34a':'#111';}
-  if(jss){jss.textContent=sc>0&&sellSaving>0?'saved vs dealer list':'vs dealer list';}
+
     if(tpp)tpp.textContent=mp.toFixed(1)+'% — '+(mp>=20?'strong':mp>=10?'moderate':'low')+' margin';
   }
   var dbw=document.getElementById('deal-wrap'),ds=document.getElementById('deal-sub');
@@ -479,13 +549,53 @@ function handleSaveChanges(){
   closeModal();
   document.getElementById('save-rule-nudge').classList.remove('show');
 }
+function goModalStep(n){
+  document.getElementById('modal-step-1').classList.toggle('active',n===1);
+  document.getElementById('modal-step-2').classList.toggle('active',n===2);
+  document.getElementById('modal-footer-1').style.display=n===1?'flex':'none';
+  document.getElementById('modal-footer-2').style.display=n===2?'flex':'none';
+  if(n===2){
+    var methods=['Charge % of dealer list price','Add % mark up to cost','Add % show mark up to cost','Use dealer list and part number'];
+    var active=0;
+    for(var ri=0;ri<4;ri++){var rr=document.getElementById('rr'+ri);if(rr&&rr.classList.contains('active')){active=ri;break;}}
+    var val=document.getElementById('rpi'+active);
+    var preview=methods[active]+(val&&!val.disabled?' — '+val.value+'%':'');
+    document.getElementById('rule-method-preview').textContent=preview;
+    document.getElementById('rule-save-feedback').style.display='none';
+    document.getElementById('rule-name-input').value='';
+  }
+}
 function saveAsRule(){
-  closeModal();
   document.getElementById('save-rule-nudge').classList.remove('show');
-  switchTab('margin');
-  var t=document.getElementById('toast');
-  t.innerHTML='<div class="tdot">&#10003;</div>Opening Margin Settings — add your new rule there';
-  t.classList.add('show');setTimeout(function(){t.classList.remove('show');},3500);
+  document.getElementById('margin-box-static').style.display='flex';
+  goModalStep(2);
+}
+function commitSaveAsRule(){
+  var name=document.getElementById('rule-name-input').value.trim();
+  if(!name){document.getElementById('rule-name-input').style.borderColor='#ef4444';document.getElementById('rule-name-input').focus();return;}
+  document.getElementById('rule-name-input').style.borderColor='';
+  var insurer=document.getElementById('rule-insurer-input').value;
+  var parttype=document.getElementById('rule-parttype-input').value;
+  var methods=['% of Dealer List','Markup on Cost','Show Markup on Cost','At Cost'];
+  var active=0;
+  for(var ri2=0;ri2<4;ri2++){var rr2=document.getElementById('rr'+ri2);if(rr2&&rr2.classList.contains('active')){active=ri2;break;}}
+  var val2=document.getElementById('rpi'+active);
+  var pct=val2&&!val2.disabled?val2.value:'—';
+  var rule={id:Date.now(),insurer:insurer||name,type:'custom',
+    oem:active===0?pct+'% of List':'—',
+    aftm:active===0?pct+'% of List':'—',
+    reco:active===1?pct+'% Markup of Cost':'—',
+    parallel:'—',pinned:false,active:true,isDefault:false};
+  if(window.saveRuleFromModal) window.saveRuleFromModal(rule);
+  document.getElementById('rule-save-feedback').style.display='block';
+  document.getElementById('rule-save-btn').disabled=true;
+  setTimeout(function(){
+    closeModal();goModalStep(1);
+    document.getElementById('rule-save-btn').disabled=false;
+    var t=document.getElementById('toast');
+    t.innerHTML='<div class="tdot">&#10003;</div><span>Rule saved — find it in Margin Settings</span>';
+    t.classList.add('show');setTimeout(function(){t.classList.remove('show');},3000);
+  },1000);
 }
 function dismissNudge(){document.getElementById('save-rule-nudge').classList.remove('show');document.getElementById('margin-box-static').style.display='flex';}
 var rrEls=document.querySelectorAll('.err');
@@ -1339,8 +1449,7 @@ function MarginApp() {
   const [editing,setEditing] = useState(null);
   const [isCopy,setIsCopy]   = useState(false);
   const [lists,setLists]     = useState([{id:1,name:"Standard List",desc:"Default system part number types",items:[...SYSTEM_PNL],isSystem:true}]);
-  const save = (rule,isEdit) => {
-    if(rule.isDefault) {
+  const save = (rule,isEdit) => {    if(rule.isDefault) {
       // demote any other rules for the same insurer
       setRules(r=>{
         const base = isEdit ? r.map(x=>x.id===rule.id?rule:x) : [...r,rule];
@@ -1352,6 +1461,10 @@ function MarginApp() {
     setScreen("dashboard"); setEditing(null);
   };
   const saveOb = nr => setRules(r=>[...r,...nr.filter(x=>!r.some(y=>y.insurer===x.insurer))]);
+  React.useEffect(()=>{
+    window.saveRuleFromModal = rule => setRules(r=>[...r,rule]);
+    return ()=>{ delete window.saveRuleFromModal; };
+  },[]);
   if(screen==="onboard") return <Onboarding onBack={()=>setScreen("dashboard")} onFinish={()=>setScreen("dashboard")} onSaveRules={saveOb}/>;
   if(screen==="form")    return <RuleForm onBack={()=>{setScreen("dashboard");setEditing(null);}} onSave={save} editingRule={editing} isCopy={isCopy} lists={lists} rules={rules}/>;
   return (
