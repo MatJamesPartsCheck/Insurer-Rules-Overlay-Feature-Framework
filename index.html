@@ -685,7 +685,11 @@ td { padding: 0.85rem 0.75rem; vertical-align: middle; }
 
 <div class="footer-bar" id="footerBar">
   <div class="footer-counts" id="footerCounts"></div>
-  <button class="export-btn" onclick="handleExport()">Export CSV</button>
+  <div style="display:flex;align-items:center;gap:1rem;flex-shrink:0">
+    <span id="save-indicator" style="font-size:0.6rem;color:#888;letter-spacing:0.05em;white-space:nowrap"></span>
+    <button onclick="clearState()" style="font-family:DM Mono,monospace;font-size:0.6rem;letter-spacing:0.08em;text-transform:uppercase;padding:0.35rem 0.8rem;background:transparent;color:#666;border:1px solid #444;border-radius:2px;cursor:pointer;">Clear saved data</button>
+    <button class="export-btn" onclick="handleExport()">Export CSV</button>
+  </div>
 </div>
 
 <script>
@@ -871,6 +875,83 @@ function t2ExportCSV(){
   dlCSV(rows.join('\n'),'rice_scores_insurer_rules_overlay.csv');
 }
 
+// ── LOCALSTORAGE PERSISTENCE ──────────────────────────
+const LS_KEY = 'iro_workshop_v1';
+
+function saveState() {
+  try {
+    const t1 = {};
+    document.querySelectorAll('#t1MainContent tbody tr').forEach(row => {
+      const nameEl = row.querySelector('.t1-feature-name');
+      if (!nameEl) return;
+      const name = nameEl.textContent.trim().replace(/New|↑\s*\d+\s*users/g,'').trim();
+      t1[name] = row.dataset.final || '';
+    });
+    const t2saved = t2data.map(f => ({ id: f.id, R: f.R, I: f.I, C: f.C, E: f.E }));
+    localStorage.setItem(LS_KEY, JSON.stringify({ t1, t2: t2saved, savedAt: new Date().toISOString() }));
+    flashSaveIndicator();
+  } catch(e) { console.warn('Save failed:', e); }
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (!raw) return;
+    const state = JSON.parse(raw);
+    if (state.t2) {
+      state.t2.forEach(saved => {
+        const f = t2data.find(d => d.id === saved.id);
+        if (f) { f.R = saved.R; f.I = saved.I; f.C = saved.C; f.E = saved.E; }
+      });
+    }
+    if (state.t1) {
+      document.querySelectorAll('#t1MainContent tbody tr').forEach(row => {
+        const nameEl = row.querySelector('.t1-feature-name');
+        if (!nameEl) return;
+        const name = nameEl.textContent.trim().replace(/New|↑\s*\d+\s*users/g,'').trim();
+        const p = state.t1[name];
+        if (p) {
+          row.dataset.final = p;
+          const btn = row.querySelector('.prio-btn[onclick*="' + p + '"]');
+          if (btn) btn.classList.add('selected-' + p.toLowerCase());
+        }
+      });
+    }
+    if (state.savedAt) {
+      const d = new Date(state.savedAt);
+      const ts = d.toLocaleDateString() + ' ' + d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+      const el = document.getElementById('save-indicator');
+      if (el) { el.textContent = '✓ Restored — last saved ' + ts; el.style.color = '#888'; }
+    }
+  } catch(e) { console.warn('Load failed:', e); }
+}
+
+function clearState() {
+  if (!confirm('Clear all saved decisions and scores? This cannot be undone.')) return;
+  try { localStorage.removeItem(LS_KEY); } catch(e) {}
+  document.querySelectorAll('#t1MainContent tbody tr').forEach(row => {
+    row.dataset.final = '';
+    row.querySelectorAll('.prio-btn').forEach(b => b.className = 'prio-btn');
+  });
+  t2data = RAW.map((f,i) => ({...f, id:i}));
+  t2Render(); t1ApplyFilter(); updateFooter();
+  const el = document.getElementById('save-indicator');
+  if (el) { el.textContent = 'Cleared'; el.style.color = '#c84b2f'; setTimeout(()=>{ el.textContent=''; }, 2000); }
+}
+
+let _saveFlashTimer;
+function flashSaveIndicator() {
+  const el = document.getElementById('save-indicator');
+  if (!el) return;
+  el.textContent = '✓ Saved'; el.style.color = '#6aba8a';
+  clearTimeout(_saveFlashTimer);
+  _saveFlashTimer = setTimeout(() => {
+    const d = new Date();
+    el.textContent = '✓ Auto-saved ' + d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+    el.style.color = '#888';
+  }, 1500);
+}
+
 // ── SHARED FOOTER ─────────────────────────────────────
 function updateFooter(){
   const fc = document.getElementById('footerCounts');
@@ -882,7 +963,7 @@ function updateFooter(){
       if(f==='NOW')now++;else if(f==='NEXT')next++;else if(f==='FUTURE')future++;else unset++;
       if(r.dataset.isnew==='true') newcount++;
     });
-    fc.innerHTML=`<div class="fc">NOW: <span>${now}</span></div><div class="fc">NEXT: <span>${next}</span></div><div class="fc">FUTURE: <span>${future}</span></div><div class="fc">Undecided: <span>${unset}</span></div><div class="fc" style="color:#d8b0e8">New features: <span style="color:#f4f1eb">${newcount}</span></div>`;
+    fc.innerHTML=`<div class="fc">NOW: <span>${now}</span></div><div class="fc">NEXT: <span>${next}</span></div><div class="fc">FUTURE: <span>${future}</span></div><div class="fc">Undecided: <span>${unset}</span></div><div class="fc" style="color:#d8b0e8">New: <span style="color:#f4f1eb">${newcount}</span></div>`;
   } else {
     const scored=t2data.map(f=>riceScore(f));
     const now=scored.filter(s=>s>=20).length,next=scored.filter(s=>s>=10&&s<20).length,future=scored.filter(s=>s<10).length;
@@ -896,7 +977,17 @@ function updateFooter(){
 function handleExport(){ if(activeTab==='t1') t1ExportCSV(); else t2ExportCSV(); }
 function dlCSV(content,filename){ const blob=new Blob([content],{type:'text/csv'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=filename; a.click(); }
 
-t2Render(); updateFooter();
+// Hook save into every mutating action
+const _orig_t1Set = t1SetPriority;
+t1SetPriority = function(btn, priority){ _orig_t1Set(btn, priority); saveState(); };
+const _orig_t2Update = t2Update;
+t2Update = function(input){ _orig_t2Update(input); saveState(); };
+
+// ── INIT ──────────────────────────────────────────────
+t2Render();
+loadState();
+t2Render();
+updateFooter();
 </script>
 </body>
 </html>
